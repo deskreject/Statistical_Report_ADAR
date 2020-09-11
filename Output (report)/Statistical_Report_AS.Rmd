@@ -1,0 +1,68 @@
+---
+title: "Statistical_Report_ADAR"
+author: "Alexander Staub"
+date: "September 11, 2020"
+output: 
+  html_document:
+    code_folding: "hide"
+    includes:
+      after_body: footer.html
+---
+
+Need to have an area of package loading and dataframe loading
+
+# Abstract
+
+# Introduction
+
+Here will need to already give an indication that we will be using DiD models
+
+# Data collection
+
+Need to show the missing values as a count table that enumerates the NAs and non-nas
+
+# Descriptive analysis of the sample
+
+### Descriptive statistics unmatched
+use the stargazer table imploying html here to check
+
+### graphical representations
+
+### propensity score matching
+
+mention that you tried a number of different models including different combinations of variables as well as matching methods, and decided to use the matched unaltered and matched on quantiles given the distribution of propensity scores and matching variables.
+
+use the propensity distribution plot and the distribution of variables here
+
+### descriptives statistics matched -> as above, choose matched unaltered
+
+### Transition to analysis
+
+demonstrate the high overdispersion and large amount of 0s, which points towards the necessity of zero inflated poisson or NB model
+
+
+
+# Analysis
+
+### hypotheses that will be tested
+
+### Pretrend analysis
+
+will have to use the coeffplot here and try to include both in one. 
+error check will be necessary
+
+### Performance analysis
+
+here the equation has to be placed
+- just the general model first. If I have time, I will try to write out the regression equation for the poisson models etc. 
+
+Models calculated based on suitable pretrends
+
+wil have to use stargazer and decide on what I can fit into one table
+
+#### Preconditions
+need to run an qq plot to determine normality
+
+# Concluding remarks
+
+
