@@ -7,11 +7,13 @@ output:
     code_folding: "hide"
     includes:
       after_body: footer.html
+bibliography: C:\\R work\\Advanced data analytics with R\\Statistical Report\\references\\reference_list.bib        
 ---
 
 Need to have an area of package loading and dataframe loading
 
 # Abstract
+[@Cameron.1994; @Craig.2017]
 
 # Introduction
 
@@ -65,4 +67,5 @@ need to run an qq plot to determine normality
 
 # Concluding remarks
 
+# References
 
