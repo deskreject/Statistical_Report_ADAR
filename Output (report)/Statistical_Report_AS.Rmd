@@ -10,6 +10,8 @@ output:
 bibliography: C:\\R work\\Advanced data analytics with R\\Statistical Report\\references\\reference_list.bib        
 ---
 
+
+
 Need to have an area of package loading and dataframe loading
 
 # Abstract
@@ -59,37 +61,355 @@ if (!require(lfe)) install.packages("lfe"); library(lfe) #for linear models with
 if (!require(alpaca)) install.packages("alpaca"); library(alpaca) #for non-linear models with multiway clustering and fixed effects
 if (!require(boot)) install.packages("boot"); library(boot) #for bootstrapped standard errors
 if (!require(clusterSEs)) install.packages("clusterSEs"); library(clusterSEs) #for bootstrapped standard errors
+if (!require(pscl)) install.packages("pscl"); library(pscl) #for bootstrapped standard errors
 
 #loading the necessary dataframes
-load("data/w_panel_did_qual_as_regUs_6m_b.Rda")
-load("data/qual_pre_panel_clean_coded.Rda")
-load("data/qual_pre_panel_ee_coded.Rda")
+load("C:/R work/Advanced data analytics with R/Statistical Report/data/w_panel_did_qual_as_regUs_6m_b.Rda")
+load("C:/R work/Advanced data analytics with R/Statistical Report/data/qual_pre_panel_clean_coded.Rda")
+load("C:/R work/Advanced data analytics with R/Statistical Report/data/qual_pre_panel_ee_coded.Rda")
+load("C:/R work/Advanced data analytics with R/Statistical Report/data/crosssec_both_match.Rda")
 ```
 
-To conclude this research, digital trace data was collected on the treatment and control community in two different ways. While Stackoverflow generously provides data dumps of every sub community, of which the electrical engineering community is one, data on the treatment community had to be scraped. A research assistant was tasked with writing the scraping program in order to get access, which was audited by the research team. For both communities, data was gathered on the post level, and then aggregated to the user-week level in order to provide the necessary analyses for this study. 
+To conduct this research, digital trace data was collected on the treatment and control community in two different ways. While Stackoverflow generously provides data dumps of every sub community, of which the electrical engineering community is one, data on the treatment community had to be scraped. A research assistant was tasked with writing the scraping program in order to get access, which was audited by the research team. For both communities, data was gathered on the post level, and then aggregated to the user-week level in order to provide the necessary analyses for this study. 
 
-The control community was identified as relevant for a difference in difference study due to a number of factors. First of all, descriptions of the two communities were inspected by the researchers, which allowed the team to conclude that the topical focus of the two matched. While it has to be mentioned, that the main difference between the two communities is that the treatment community is owned and operated by a commercial parent company, the researchers observed thta the parent company does not excert control over content and interactions in the community which was coroborated by annecdotal evidence from the community manager. Secondly, tags used in posts made in each community were compared to assess whether there are large topical differences in the main topics that are discussed, which could be disconfirmed. + Q&A nature of both communities.    
+The control community was identified as relevant for a difference in difference study due to a number of factors. First of all, descriptions of the two communities were inspected by the researchers, which allowed the team to conclude that the topical focus of the two matched. While it has to be mentioned, that the main difference between the two communities is that the treatment community is owned and operated by a commercial parent company, the researchers observed that the parent company does not excert control over content and interactions in the community. This conclusion was coroborated by annecdotal evidence from the community manager. Secondly, tags used in posts made in each community were compared to assess whether there are large topical differences in the main topics that are discussed, which could be disconfirmed. Finally, the analysis is focused on the Q&A portion of the treatment community, which closely mirrors the mode of information exchange on StackOverflow.
 
-Need to show the missing values as a count table that enumerates the NAs and non-nas
+To investigate the research question of how the introduction of symbolic awards impacts the contribution behavior of members, we set the time period of relevance to 6 months before and after the time of the introduction (the shock). We were able to isolate the introduction of the shock to the 13th of April 2015 due to a blog post published in the treated community. We also received annecdotal evidence from the community manager that the members of the commmunity were not aware of the impending change to the reward system, giving us confidence that we can rule out any potential anticipatory effect. At the same time the blog post itself was published by the community manager and received a considerable amount of views and comments, in addition to these new badges being added to a section of every members profile. 6 months around the time of introduction was chosen as a suitable time frame as it allowed enough time for users to get acquainted with the new rewards, while not too much time so as to risk other factors influencing our results. 
 
-# Descriptive analysis of the sample
+As mentioned briefly above, the sample being analyzed consists of users that were registered before the introduction of the symbolic awards and observations were aggregated to the user week level. We incldued only registered users as the focus of this study is on the behavioral changes of existing users of the community. We aggregated the panel data to a weekly level as this was the lowest possible frequency which allowed for measurable variation on the user level, given that a large portion of community members participate very infrequently. All in all, the sample includes 913 individual users in the treatment group and 2536 users in the control group across the period of relevance. After balancing the panel, each user has 48 observations, leading to a panel data set of 165.588 user-week observations, 9.995 of which are non-0 observations.  
+```{r, message = F}
+#number of users in the treated group
+w_panel_did_qual_as_regUs_6m_b %>% filter(group==1) %>% group_by(user_ID) %>% dplyr::summarize(actions = n()) %>% glimpse()
+#number of users in the control group
+w_panel_did_qual_as_regUs_6m_b %>% filter(group==0) %>% group_by(user_ID) %>% dplyr::summarize(actions = n()) %>% glimpse()
+```
+Variables that are included in the panel data set that are relevant for the analysis within this statistical report include:
+
+*   user_ID: a value indicating the identifier of each individual member
+*   t_shock_w: a variable indicating each week before and after the week of treatment introduction, ranging from -24 to 23, 0 indicating the week of treatment introduction. 
+* group: a dummy variable taking on the value 1 if an observation is part of the treated community
+* post_treatment: a dummy variable taking on the value 1 if an observation was made after the week of the treatment introduction
+* actions: the number of answers provided by a user in a week, which is the dependent variable of interest
+* questions_per_week: a control variable indicating the amount of questions provided to the community in a given week, to control for any increase or decrease in answering behavior due to a increase or decrease in the supply of questions. 
+
+There are no NA values present in the panel data as for the amount of answers variable, NAs were coerced into 0 after balancing.
+
+A large portion of the data cleaning process was left out of this statistical report, as the data provided had to undergo a lot of preporsseing. A number of users were excluded from the panel data set based on coding by 3 research assistants, that filtered out users which were community moderators or employees and accounts that appeared to be purely of commercial purpose (linking to their own products or websites in every answer) - approximately 1.5% of users. Answers had to be coded as such, as in the treatment community individuals were able to comment on various kinds of content beyond questions, while in the control community, questions where the only form of original content contributions that illicted answers. Furthermore, a large amount of registered users in the treatment community had to be filtered out, as there seemed to have been a disproportionate amount of sudden registrations several years before the introduction of the symbolic awards that never actively contributed (approximately 150.000 within a week). The aggregation of the data to the user-week level was intentionally left out as well as the week variables and treatment variable had to be added to both community data sets. What will be shown in the following section is the propensity score matching procedure, conducted in order to aid in the identification of causal effects by making the treatment and control group more comparable. 
+
+# Descriptive Analysis of the Sample
+
+Within this section of the statistical report, an overview of the descriptive statistics will be provided for the dataset before and after the matching procedure. As the matching procedure is undertaken on the crosssectional level, including only observations before the shock, descritpive statistics of the matching variables are also provided. 2 different panel data sets will be used in the analysis portion of this report in addition to the unmatched panel data set
 
 ### Descriptive statistics unmatched
-use the stargazer table imploying html here to check
 
-### graphical representations
+Below are tables of the descriptive statiscs before and after the introduction of the treatment for each group. It can be seen in the tables that there is a large reduction in the number of answers per uesr as well as questions posed per week in the treated community after the introduction of the shock. In the control community a reduction in the answers can be seen as well, however there is only a marginal change in the amount of questions posed per week. Furthermore, there is a large difference in the median value of questions asked between the two groups, which is not the case when insepcting the median answers per users. 
+
+```{r, results = 'asis'}
+#descriptives for the treatment group, before treatment
+  stargazer(w_panel_did_qual_as_regUs_6m_b %>% filter(group == 1, post_treatment == 0) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics treated community, before shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+
+#descriptives for the treatment group, after treatment
+  stargazer(w_panel_did_qual_as_regUs_6m_b %>% filter(group == 1, post_treatment == 1) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics treated community, after shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+
+#descriptives for the control group, before treatment
+  stargazer(w_panel_did_qual_as_regUs_6m_b %>% filter(group == 0, post_treatment == 0) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics control community, before shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+
+#descriptives for the control group, after treatment
+  stargazer(w_panel_did_qual_as_regUs_6m_b %>% filter(group == 0, post_treatment == 1) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics control community, before shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+```
+
+### Graphical Representation of the Dependent Variable
+
+Investigating the dependent variable graphically shows that there is a very large representation of 0s in the dataset, which makes it hard to compare the treated and control community visually
+
+```{r}
+#densuty plot of the two groups answering behavior, before and after the treatment
+w_panel_did_qual_as_regUs_6m_b %>%
+  ggplot(aes(x = actions)) +
+  geom_density() + 
+  ggtitle("distribution of answers by user-week level, before and after treatment") + 
+  facet_grid(group~post_treatment, labeller = label_both)
+```
+
+a log transformation does not yield any clear improvement in terms of making the distribution of the DV more normal. 
+```{r}
+#density plot of the two groups, before and after treatment, logged DV
+w_panel_did_qual_as_regUs_6m_b  %>%
+  ggplot(aes(x = log(actions+1))) +
+  geom_density() + 
+  ggtitle("distribution of logged answers by user-week level, before and after treatment") + 
+  facet_grid(group~post_treatment, labeller = label_both)
+```
+
+when excluding 0s from the dataset, the distribution is still very right skewed.   
+
+```{r}
+#densuty plot of the two groups answering behavior, before and after the treatment
+w_panel_did_qual_as_regUs_6m_b  %>% filter(actions > 0) %>%
+  ggplot(aes(x = actions)) +
+  geom_density() + 
+  ggtitle("distribution of answers, excluding zeros, by user-week level, before and after treatment") + 
+  facet_grid(group~post_treatment, labeller = label_both)
+```
+
+The inspection of the descriptive statistics and visual representation of the DV suggests that a count regression specification will be necessary to make valid inferences, whereas a poisson regression might not be the best option as the mean (0) does not equal the variance. Before running the analysis, a propensity score matching procedure is implemented in order to make the two groups more homogeneous. 
 
 ### propensity score matching
 
-mention that you tried a number of different models including different combinations of variables as well as matching methods, and decided to use the matched unaltered and matched on quantiles given the distribution of propensity scores and matching variables.
+In the following section, the propensity matching procedure is undertaken and described, using matching variables based on the available data. Unfortunately, there is no demopgraphic data available on the user level, which is why information on the contribution behavior is used to undertake the propensity score matching. 
 
-use the propensity distribution plot and the distribution of variables here
+The preparation of the data used to conduct the propensity was done outside of the statistical report. The reason being is that while the analysis is being done on panel data, the matching was conducted with crosssectional data. The data for the crosssectional matching procedure is based on the following variables: 
 
-### descriptives statistics matched -> as above, choose matched unaltered
+*   Days since a user was registered to the community
+*   average words per answer
+*   number of original posts made by a user between registration and time of incentive introduction
+*   overall number of answers made by a user between registration and time of incentive introduction
+*   number of answers made by a user 1 year before the incentive introduction
+*   number of answers made by a user 2 years before the incentive introduction
+*   number of answers made by a user 3 years before the incentive introduction
 
-### Transition to analysis
+These variables are a subset of variables chosen to base the propensity score matching on. The original set of variables were chosen based on whether they may influence selection into treatment as well as based on the data that was available for users of both communities. The variables that were dropped in favor of the final subset included the number of questions made between registration and time of introduction, number of views that an original post received and number of words of original posts, as well as 3 year lags of all of the above. These variables were dropped as they did not provide any improvement in the model fit when regressing the treatment variable on combinations of variables which included the aforementioned. The analysis of the different models is left out of this report for conciseness reasons. Given the right skewedness in the distribution of many of the variables, matching models were calculated with the above variables in unaltered form, as well as after creating quantiles for each of the variables. The reason for matching on quantiles is due to the fact that nearest neighbor matching may not be very precise when observations of the treated group that lie at the extremes of the variable distributions lead to a very high propensity score, which may not be achieved by any observation in the control treatment (this effect is observed to a small degree and illustrated in the matching procedures that follow)  The quantiles vary in level given the fact that there are large differences in the distributions of the variable. For example, only 2 levels were able to be created from the "answers 3 years before the treatment introduction" variable, as the vast majority of users were not active 3 years before the shock. Similarly, the "original posts" variable only has 2 levels for the same reason, that most members did not produce any original content, while a small number preferred original contributions over providing answers to other user's contributions. A version with standardized variables was also calculated, which did not provide any significant improvement in the fit of the model. Below, the fit of the 2 final models, chosen based on the lowest AIC, regressing the treatment dummy on both the quantiled as well as unaltered variables is presented
 
-demonstrate the high overdispersion and large amount of 0s, which points towards the necessity of zero inflated poisson or NB model
+```{r, warning=FALSE, message=FALSE}
+#quantile propensity score calculations
+m_ps_qs_2 <- glm(t_groups ~ d_since_reg_qs_2 + 
+                   orig_posts_qs_2 +
+                   words_p_answer_qs_2 +
+                   answers_total_qs_2 + 
+                   answers_t_1_qs_2 +
+                   answers_t_2_qs_2 +
+                   answers_t_3_qs_2,
+                 family = binomial(), data = crosssec_both_match)
+
+#unaltered propensity score calculations
+m_ps_unalt_1 <- glm(t_groups ~  d_since_reg +
+                      orig_posts +
+                      words_p_answer +
+                      answers_total +
+                      answers_t_1 + 
+                      answers_t_2 + 
+                      answers_t_3, family = binomial(), data = crosssec_both_match)
+
+summary(m_ps_qs_2)
+summary(m_ps_unalt_1)
+```
+
+In the quantiled version of the variables, in which each quantile is treated as a factor, total number of answers variable was highly significant in predicting whether a user resembled belonging to the treated community. The negative coefficient shows that user in the untreated community tend to contribute more answers than users in the treated community. Words per answer on the other hand was a weak predictor for wether a user was resembled being part of the treated community, implying that the number of words per answer is relatively similar for users in either community. Looking at the coefficients of the model including the variables in continuous (unaltered) form, every variable is significant at least at the 90% confidence level. 
+
+For the matching procedure, a number of different options are available, including nearest neighbor optimal, nearest neighbor ordered and coarsened exact matching just to name a few. Similar to the case above, the selection process was based on running various matching procedures with different combinations of variables, in unaltered, qunatiled and standardized form. Once again, only the final matching procedures are presented in this report, which are ordered nearest neighbor matching with the combination of variables as presented above, in unaltered and quantiled form. Here, ordered refers to the fact that the observations were sorted in descending order according to their propensity scores, which were predicted using the regression models from above. 
+
+What follows is the ordered nearest neighbor matching procedure using the variables in their unaltered, continuous form
+
+```{r, warning=FALSE, message=FALSE}
+##execute NN matching ordered for un-quantiled, un-scaled with best fitting model
+crosssec_both_match$PS_unalt <- predict(m_ps_unalt_1)
+crosssec_both_match_unalt_ord <- crosssec_both_match %>% arrange(desc(PS_unalt))
+
+#execute the matching by nearest neighbour
+crosssec_both_match_unalt_ord_NoNas <- crosssec_both_match_unalt_ord %>% dplyr::select(c(-views_p_post, -p_views_qs, -p_views_qs_2, -words_p_all_posts))
+
+NN_match_unalt_ord <- matchit(t_groups ~  d_since_reg +
+                                orig_posts +
+                                words_p_answer +
+                                answers_total +
+                                answers_t_1 + 
+                                answers_t_2 + 
+                                answers_t_3, method = "nearest", data = crosssec_both_match_unalt_ord_NoNas)
+
+summary(NN_match_unalt_ord)
+```
+from the above matching output, when comparing the mean differences and balance improvements of the control group, it can be seen that a considerable improvement in the balance of the matching variables has been achieved with the matching procedure. 
+Below, a visual representation of the propensity score changes before and after matching for the matching procedure based on the unaltered, continuous variables, is provided. 
+
+```{r}
+plot(NN_match_unalt_ord, type = "jitter", interactive = F)
+plot(NN_match_unalt_ord, type = "hist")
+```
+
+
+The visual comparison shows a far more balanced distribution of the propensity scores after matching. The first graphic clearly shows that a large number of observations with very low propensity scores was purged from the control group. However, there remain a number of observations with very high propensity scores in the treatment group, which were not able to be matched with observations in the control group that had a similarly high propensity score. 
+
+Next, the ordered nearest neighbor matching procedure using the variables as coerced into factors according to quantiles is presented
+
+```{r}
+crosssec_both_match$PS <- predict(m_ps_qs_2)
+
+crosssec_both_match_ord <- crosssec_both_match %>% arrange(desc(PS))
+
+##execute the matching by nearest neighbor with quantiles after ordering
+matching_panel_both_ord_noNas <- crosssec_both_match_ord %>% dplyr::select(c(-views_p_post, -p_views_qs, -p_views_qs_2, -words_p_all_posts))
+
+NN_match_qs_ord <- matchit(t_groups ~ d_since_reg_qs_2 + 
+                             orig_posts_qs_2 +
+                             words_p_answer_qs_2 +
+                             answers_total_qs_2 + 
+                             answers_t_1_qs_2 +
+                             answers_t_2_qs_2 +
+                             answers_t_3_qs_2, method = "nearest", data = matching_panel_both_ord_noNas)
+
+summary(NN_match_qs_ord)
+
+```
+The balance improvement using the factor variables is not as clear when taking the "percent balance improvement" table at face value. However it has to be said that the number of variables to match on increased significantly due to every factor level being matched on. In addition, the absolute differences are far smaller before and after the matching procedure when inspecting means in the first two tables. Overall, the balance improved for 11 of 19 factor levels. 
+
+```{r}
+plot(NN_match_qs_ord, type = "jitter", interactive = F)
+plot(NN_match_qs_ord, type = "hist")
+```
+
+
+Visually on the other hand, the balance improvement after matching is promising when inspecting the propensity scores. As before, a large number of control group observations with low propensity scores were purged from the dataset, while at the same time the high propensity score observations of the treatment group could be matched more closely with control group observations compared to the matching based on the unaltered, continuous variables. Comparing the histograms in the second graphic also illustrates the considerable improvements in balance of the two groups due to the matching procedure
+
+### descriptives - panel data including only matched observations
+
+Following the comparison of the propensity scores before and after matching for the control and treated group, it makes sense to inspect whether this improvement in balance translates into improved balance in the descriptive statistics, at least before the introduction of the treatment. Below an overview of the descriptive statistics for the panel data based on the matching procedure with the unaltered, continuous variables is provided. Given the visual inspection was not particularly helpful due to the large right skew of the dependent variable, only the descriptive statistics tables are provided
+
+```{r, results = 'asis'}
+#extracting the matching data
+match_data_unalt <- match.data(NN_match_unalt_ord)
+
+#limiting the panel data to the matched unaltered users
+w_panel_matched_qual_6m_unalt_b <- w_panel_did_qual_as_regUs_6m_b %>% filter(user_ID %in% match_data_unalt$user_ID)
+
+#providing the descriptive statistics
+  stargazer(w_panel_matched_qual_6m_unalt_b %>% filter(group == 1, post_treatment == 0) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics treated community, before shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+
+#descriptives for the treatment group, after treatment
+  stargazer(w_panel_matched_qual_6m_unalt_b %>% filter(group == 1, post_treatment == 1) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics treated community, after shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+
+#descriptives for the control group, before treatment
+  stargazer(w_panel_matched_qual_6m_unalt_b %>% filter(group == 0, post_treatment == 0) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics control community, before shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+
+#descriptives for the control group, after treatment
+  stargazer(w_panel_matched_qual_6m_unalt_b %>% filter(group == 0, post_treatment == 1) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics control community, before shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+  
+```
+
+
+As shown in the descriptive statistics table, there is little improvement in terms of similarity of means in the DV as well as the control variable, questions per week. However, the standard deviations for the DV in the treated and control community are more similar than before.
+
+Finally, the descriptive statistics for the treated and control community are provided based on observations that were matched on the factor variables constructed from quantiles of the matching variables. 
+
+```{r, results= 'asis'}
+
+#extracting the matching data
+match_data_qs <- match.data(NN_match_qs_ord)
+
+#including only the observations of the matching procedure
+w_panel_matched_qual_6m_qs_b <- w_panel_did_qual_as_regUs_6m_b %>% filter(user_ID %in% match_data_qs$user_ID)
+
+#providing the descriptive statistics
+  stargazer(w_panel_matched_qual_6m_qs_b %>% filter(group == 1, post_treatment == 0) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics treated community, before shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+
+#descriptives for the treatment group, after treatment
+  stargazer(w_panel_matched_qual_6m_qs_b %>% filter(group == 1, post_treatment == 1) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics treated community, after shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+
+#descriptives for the control group, before treatment
+  stargazer(w_panel_matched_qual_6m_qs_b %>% filter(group == 0, post_treatment == 0) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics control community, before shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+
+#descriptives for the control group, after treatment
+  stargazer(w_panel_matched_qual_6m_qs_b %>% filter(group == 0, post_treatment == 1) %>% dplyr::select(t_shock_w, post_treatment, actions, questions_per_week),
+            type = "html",
+            title ="Descriptive Statistics control community, before shock",
+            digits = 2,
+            font.size = "normalsize",
+            single.row = TRUE,
+            notes = "",
+            column.separate = c(4, 1, 1, 1, 1, 1),
+            summary.stat = c("n","mean","sd", "min","max", "median"))
+```
+
+As can be seen above, the mean as well as standard deviation of the dependent variable increased compared to before the matching procedure in the control group, both before and after incentive introduction. This may mean that the matching procedure made the two groups less comparable, or that there are substantial differences in levels of answering activity within the control group. This suggests that indivdiual fixed effects may need to be included in the difference in difference analysis using the panel data including observations from the matching procedure using quantiles. 
+
+What follows in the next section will be the analysis of how the introduction of symbolic awards affects the answering behavior of members within online communities. The matching procedures illustrated above, in addition to the pre-processing of the raw data, provide further arguments for the identification of a generalizable causal effect. 
 
 
 
@@ -97,15 +417,137 @@ demonstrate the high overdispersion and large amount of 0s, which points towards
 
 ### hypotheses that will be tested
 
-### Pretrend analysis
-
-will have to use the coeffplot here and try to include both in one. 
-error check will be necessary
 
 ### Performance analysis
 
 here the equation has to be placed
+- need to preface that I will be using count regressions as the main model (if I can make them work) given the non-normal, count distribution of the data being investigated. 
 - just the general model first. If I have time, I will try to write out the regression equation for the poisson models etc. 
+
+```{r}
+
+#### unaltered data ####
+#run the logged and unlogged dv models
+
+formula_reg <- actions ~ group*post_treatment + questions_per_week
+formula_log_reg <- log(actions + 1) ~  group*post_treatment + questions_per_week
+formula_did_coef <- actions ~ did_coeff + questions_per_week
+formula_log_did_coef <- log(actions +1) ~ did_coeff + questions_per_week
+
+#OLS regressions
+ols_unmatched_asw_6m <- lm(formula_reg, data = w_panel_did_qual_as_regUs_6m_b)
+ols_logged_unmatched_asw_6m <- lm(formula_log_reg, data = w_panel_did_qual_as_regUs_6m_b)
+ols_logged_fullFEs_asw_6m <- felm(log(actions + 1) ~  group*post_treatment + questions_per_week|user_ID + as.factor(t_shock_w)|0|user_ID, data = w_panel_did_qual_as_regUs_6m_b)
+
+#run simple poisson without fixed effects
+pois_unmatched_asw_6m <- glm(actions ~ group*post_treatment + questions_per_week, family = poisson, data = w_panel_did_qual_as_regUs_6m_b)
+#run the poisson model with time and individual fixed effects
+pois_unmatched_FEs_asw_6m <- fepois(actions ~ group*post_treatment + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), w_panel_did_qual_as_regUs_6m_b)
+pois_m_unalt_FEs_asw_6m <- fepois(actions ~ group*post_treatment + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), w_panel_matched_qual_6m_unalt_b)
+
+## overdispersed poisson models
+#test for dispersion
+(phihat <- sum(residuals(pois_unmatched_asw_6m, type = "pearson") ^ 2) / df.residual(pois_unmatched_asw_6m))
+dispersiontest(pois_unmatched_asw_6m)
+
+#summary of the poisson with overdispersion adjustment
+summary(pois_unmatched_asw_6m, dispersion = phihat)
+summary(pois_unmatched_FEs_asw_6m, dispersion = phihat)
+
+
+#negative binomial regressions
+##first need to add the did_coeff to avoid multicollinearity
+w_panel_did_qual_as_regUs_6m_b$did_coeff <- w_panel_did_qual_as_regUs_6m_b$group*w_panel_did_qual_as_regUs_6m_b$post_treatment 
+#with fixed effects
+negbi_unmatched_FEs_asw_6m_1 <- fenegbin(actions ~ did_coeff + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), w_panel_did_qual_as_regUs_6m_b)
+
+#without fixed effects
+(theta_unmatched <- glm.nb(actions ~ group*post_treatment + questions_per_week, data = w_panel_did_qual_as_regUs_6m_b)$theta) 
+negbi_unmatched_FEs_asw_6m_2 <- update(pois_unmatched_asw_6m, family = negative.binomial(theta_unmatched))
+
+#show the model results
+summary(negbi_unmatched_FEs_asw_6m_1)
+summary(negbi_unmatched_FEs_asw_6m_2)
+
+
+#hurdle models
+#negbi - no FEs
+negbi_h_unmatched_asw_6m <- hurdle(actions ~ group*post_treatment + questions_per_week, data = w_panel_did_qual_as_regUs_6m_b, dist = "negbin")
+#poisson - no FEs
+pois_h_unmatched_asw_6m <- hurdle(actions ~ group*post_treatment + questions_per_week, data = w_panel_did_qual_as_regUs_6m_b)
+
+summary(negbi_h_unmatched_asw_6m)
+
+#zero inflated poisson
+#negbi - no FEs
+negbi_zi_unmatched_asw_6m <- zeroinfl(actions ~ group*post_treatment + questions_per_week, data = w_panel_did_qual_as_regUs_6m_b, dist = "negbin")
+#poisson - no FEs
+pois_zi_unmatched_asw_6m <- zeroinfl(actions ~ group*post_treatment + questions_per_week, data = w_panel_did_qual_as_regUs_6m_b)
+
+summary(pois_zi_unmatched_asw_6m)
+
+#show the models
+etable(negbi_unmatched_FEs_asw_6m_1,
+       pois_unmatched_FEs_asw_6m)
+
+stargazer(ols_unmatched_asw_6m,
+          ols_logged_unmatched_asw_6m,
+          ols_logged_fullFEs_asw_6m,
+          negbi_unmatched_FEs_asw_6m_2,
+          pois_unmatched_asw_6m,
+          negbi_h_unmatched_asw_6m,
+          pois_h_unmatched_asw_6m,
+          type = "text")
+
+
+#### matched on unaltered data
+# data prep
+w_panel_matched_qual_6m_unalt_b$did_coeff <- w_panel_matched_qual_6m_unalt_b$group*w_panel_matched_qual_6m_unalt_b$post_treatment 
+
+### OLS regressions
+#unlogged, no FEs
+ols_matched_unalt_asw_6m <- lm(formula_reg, data = w_panel_matched_qual_6m_unalt_b)
+#logged, no FEs
+ols_logged_matched_unalt_asw_6m <- lm(formula_log_reg, data = w_panel_matched_qual_6m_unalt_b)
+#logged, FEs and clustered standard errors
+ols_logged_fullFEs_matched_unalt_asw_6m <- felm(log(actions + 1) ~  group*post_treatment + questions_per_week|user_ID + as.factor(t_shock_w)|0|user_ID, data = w_panel_matched_qual_6m_unalt_b)
+
+### Count regressions
+# poisson - without fixed effects
+pois_matched_unalt_asw_6m <- glm(actions ~ group*post_treatment + questions_per_week, family = poisson, data = w_panel_matched_qual_6m_unalt_b)
+# negative binomial - without fixed effects
+(theta_matched <- glm.nb(actions ~ group*post_treatment + questions_per_week, data = w_panel_matched_qual_6m_unalt_b)$theta) 
+negbi_matched_unalt_asw_6m <- update(pois_matched_unalt_asw_6m, family = negative.binomial(theta_matched))
+# poisson hurdle - without fixed effects
+pois_h_matched_unalt_asw_6m <- hurdle(actions ~ group*post_treatment + questions_per_week, data = w_panel_matched_qual_6m_unalt_b)
+#negative binomial hurdle - without fixed effects
+negbi_h_matched_unalt_asw_6m <- hurdle(actions ~ group*post_treatment + questions_per_week, data = w_panel_matched_qual_6m_unalt_b, dist = "negbin")
+
+#poisson - with fixed effects
+pois_matched_unalt_FEs_asw_6m <- fepois(actions ~ group*post_treatment + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), w_panel_matched_qual_6m_unalt_b)
+#negative binomial - with fixed effects
+negbi_matched_unalt_FEs_asw_6m_1 <- fenegbin(actions ~ did_coeff + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), w_panel_matched_qual_6m_unalt_b)
+# poisson hurdle - with dummies for time fixed effects
+pois_h_matched_unalt_FEs_asw_6m <- hurdle(actions ~ did_coeff + questions_per_week + as.factor(t_shock_w), data = w_panel_matched_qual_6m_unalt_b)
+# negbi hurdle - with dummies for time fixed effects
+negbi_h_matched_unalt_FEs_asw_6m <- hurdle(actions ~ did_coeff + questions_per_week + as.factor(t_shock_w), data = w_panel_matched_qual_6m_unalt_b, dist = "negbin")
+
+etable(   pois_matched_unalt_FEs_asw_6m,
+          negbi_matched_unalt_FEs_asw_6m_1)
+
+stargazer(ols_matched_unalt_asw_6m,
+          ols_logged_matched_unalt_asw_6m,
+          ols_logged_fullFEs_matched_unalt_asw_6m,
+          pois_matched_unalt_asw_6m,
+          negbi_matched_unalt_asw_6m,
+          pois_h_matched_unalt_asw_6m,
+          negbi_h_matched_unalt_asw_6m,
+          type = "text")
+```
+Interpretation from the 0 inflated/hurdle models:
+- the introduction of the incentives leads to a large increase in the 0s, which could imply that members left the community
+- little change in the answering behavior of members that have an activity level - however does not include any fixed effects yet 
+- this is without any robust clustered standard errors
 
 Models calculated based on suitable pretrends
 
@@ -114,7 +556,55 @@ wil have to use stargazer and decide on what I can fit into one table
 #### Preconditions
 need to run an qq plot to determine normality
 
+### Pretrend analysis
+
+For the difference in difference coefficient to be interpreted as causal, the requirements are that the pretrends of the dependent variable are comparable in both groups. I.e. they don't need to be the same in level, however there should not be any serious deviations in changes over time between the two groups. Below, the pretrends are presented for the negative binomial regression specification. It does not match the specifications of the main model used, as the author was not able to make the pretrend analysis work with individual and time fixed effects. 
+
+```{r}
+#set up the model for the pretrend check - negative binomial, unaltered matched
+pretrend_asw_matched_unalt_pois <- glm(actions ~ group*as.factor(t_shock_w) + questions_per_week, family = poisson, data = w_panel_matched_qual_6m_unalt_b) 
+(theta_pretrend <- glm.nb(actions ~ group*as.factor(t_shock_w) + questions_per_week, data = w_panel_matched_qual_6m_unalt_b)$theta) 
+pretrend_asw_matched_unalt_negbi <- update(pretrend_asw_matched_unalt_pois, family = negative.binomial(theta_pretrend))
+
+
+#plot the pretrends
+fixest::coefplot(pretrend_asw_matched_unalt_negbi, keep = ":",
+                                                            col = 4, 
+                                                            main = "6 months trend of answers per user",
+                                                            xlab = "interaction group x week",
+                                                            ylab = "weekly answers / user")
+
+```
+
+For optimal pretrends one would want the confidence intervals in each period to cross the horizontal line at y=0, implying that statistically, difference in the change from period to period in each group is equal to 0. As is evident from the pretrend analysis above using the negative binomial specification, pretrends are not optimal when comparing the two groups, raising considerable doubt about whether the difference-in-difference coefficient can be interpreted as representing the causal effect of the symbolic award introduction. 
+
+```{r}
+#pretrends for answers using the log transformed dependent variable - including individual fixed effects
+
+pretrends_asw_matched_unalt_log <- felm(log(actions+1) ~ group*as.factor(t_shock_w) + questions_per_week|as.factor(t_shock_w) + user_ID|0|user_ID, data = w_panel_matched_qual_6m_unalt_b)
+
+summary(pretrends_asw_matched_unalt_log)
+
+#plot the pretrends
+
+tidy_log_pretrends <- tidy(pretrends_asw_matched_unalt_log, conf.int = T)
+
+tidy_log_pretrends %>% filter(is.na(estimate) == F, term != "questions_per_week") %>% ggplot(aes(x = term, y = estimate)) + 
+  geom_point() + 
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
+  geom_hline(yintercept = 0) + 
+  geom_vline(xintercept = "group:as.factor(t_shock_w)0", color = "red")
+  
+```
+
+The pretrends above, which are based on the model specification using the logged dependent variable, including indivdual and time fixed effects as well as clustering the standard errors on the individual, while not perfect, provide better arguments for interpreting the difference in difference coefficient of the model as causal. 
+
+In summary, while the distribution of the dependent variable suggests that a count model, specifically one that accounts for overdispersion, should be used, the pretrends do not allow for the causal interpretation of the DiD coefficient. Taking into account that the pretrends look more promising when using the logged DV specification for the pretrend analysis, in addition to the fact that the DiD coefficient is negative and significant in every model specification, the conclusion is drawn that the introduction of the symbolic awards leads to a reduction in the average answers per user. 
+
 # Concluding remarks
+
+Criticisms:
+Possibly an option to implement a 0 inflated poisson model, however the researchers were not able to determine how to implement the zeron inflated poisson models. In particular, how to model the probability of having answered or not
 
 # References
 
