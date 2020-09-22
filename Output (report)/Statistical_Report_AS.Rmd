@@ -61,7 +61,8 @@ if (!require(lfe)) install.packages("lfe"); library(lfe) #for linear models with
 if (!require(alpaca)) install.packages("alpaca"); library(alpaca) #for non-linear models with multiway clustering and fixed effects
 if (!require(boot)) install.packages("boot"); library(boot) #for bootstrapped standard errors
 if (!require(clusterSEs)) install.packages("clusterSEs"); library(clusterSEs) #for bootstrapped standard errors
-if (!require(pscl)) install.packages("pscl"); library(pscl) #for bootstrapped standard errors
+if (!require(pscl)) install.packages("pscl"); library(pscl) #for the zero inflated and hurdle models
+if (!require(vcd)) install.packages("vcd"); library(vcd) #for count regression diagnostics
 
 #loading the necessary dataframes
 load("C:/R work/Advanced data analytics with R/Statistical Report/data/w_panel_did_qual_as_regUs_6m_b.Rda")
@@ -434,72 +435,6 @@ formula_log_reg <- log(actions + 1) ~  group*post_treatment + questions_per_week
 formula_did_coef <- actions ~ did_coeff + questions_per_week
 formula_log_did_coef <- log(actions +1) ~ did_coeff + questions_per_week
 
-#OLS regressions
-ols_unmatched_asw_6m <- lm(formula_reg, data = w_panel_did_qual_as_regUs_6m_b)
-ols_logged_unmatched_asw_6m <- lm(formula_log_reg, data = w_panel_did_qual_as_regUs_6m_b)
-ols_logged_fullFEs_asw_6m <- felm(log(actions + 1) ~  group*post_treatment + questions_per_week|user_ID + as.factor(t_shock_w)|0|user_ID, data = w_panel_did_qual_as_regUs_6m_b)
-
-#run simple poisson without fixed effects
-pois_unmatched_asw_6m <- glm(actions ~ group*post_treatment + questions_per_week, family = poisson, data = w_panel_did_qual_as_regUs_6m_b)
-#run the poisson model with time and individual fixed effects
-pois_unmatched_FEs_asw_6m <- fepois(actions ~ group*post_treatment + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), w_panel_did_qual_as_regUs_6m_b)
-pois_m_unalt_FEs_asw_6m <- fepois(actions ~ group*post_treatment + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), w_panel_matched_qual_6m_unalt_b)
-
-## overdispersed poisson models
-#test for dispersion
-(phihat <- sum(residuals(pois_unmatched_asw_6m, type = "pearson") ^ 2) / df.residual(pois_unmatched_asw_6m))
-dispersiontest(pois_unmatched_asw_6m)
-
-#summary of the poisson with overdispersion adjustment
-summary(pois_unmatched_asw_6m, dispersion = phihat)
-summary(pois_unmatched_FEs_asw_6m, dispersion = phihat)
-
-
-#negative binomial regressions
-##first need to add the did_coeff to avoid multicollinearity
-w_panel_did_qual_as_regUs_6m_b$did_coeff <- w_panel_did_qual_as_regUs_6m_b$group*w_panel_did_qual_as_regUs_6m_b$post_treatment 
-#with fixed effects
-negbi_unmatched_FEs_asw_6m_1 <- fenegbin(actions ~ did_coeff + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), w_panel_did_qual_as_regUs_6m_b)
-
-#without fixed effects
-(theta_unmatched <- glm.nb(actions ~ group*post_treatment + questions_per_week, data = w_panel_did_qual_as_regUs_6m_b)$theta) 
-negbi_unmatched_FEs_asw_6m_2 <- update(pois_unmatched_asw_6m, family = negative.binomial(theta_unmatched))
-
-#show the model results
-summary(negbi_unmatched_FEs_asw_6m_1)
-summary(negbi_unmatched_FEs_asw_6m_2)
-
-
-#hurdle models
-#negbi - no FEs
-negbi_h_unmatched_asw_6m <- hurdle(actions ~ group*post_treatment + questions_per_week, data = w_panel_did_qual_as_regUs_6m_b, dist = "negbin")
-#poisson - no FEs
-pois_h_unmatched_asw_6m <- hurdle(actions ~ group*post_treatment + questions_per_week, data = w_panel_did_qual_as_regUs_6m_b)
-
-summary(negbi_h_unmatched_asw_6m)
-
-#zero inflated poisson
-#negbi - no FEs
-negbi_zi_unmatched_asw_6m <- zeroinfl(actions ~ group*post_treatment + questions_per_week, data = w_panel_did_qual_as_regUs_6m_b, dist = "negbin")
-#poisson - no FEs
-pois_zi_unmatched_asw_6m <- zeroinfl(actions ~ group*post_treatment + questions_per_week, data = w_panel_did_qual_as_regUs_6m_b)
-
-summary(pois_zi_unmatched_asw_6m)
-
-#show the models
-etable(negbi_unmatched_FEs_asw_6m_1,
-       pois_unmatched_FEs_asw_6m)
-
-stargazer(ols_unmatched_asw_6m,
-          ols_logged_unmatched_asw_6m,
-          ols_logged_fullFEs_asw_6m,
-          negbi_unmatched_FEs_asw_6m_2,
-          pois_unmatched_asw_6m,
-          negbi_h_unmatched_asw_6m,
-          pois_h_unmatched_asw_6m,
-          type = "text")
-
-
 #### matched on unaltered data
 # data prep
 w_panel_matched_qual_6m_unalt_b$did_coeff <- w_panel_matched_qual_6m_unalt_b$group*w_panel_matched_qual_6m_unalt_b$post_treatment 
@@ -532,7 +467,7 @@ pois_h_matched_unalt_FEs_asw_6m <- hurdle(actions ~ did_coeff + questions_per_we
 # negbi hurdle - with dummies for time fixed effects
 negbi_h_matched_unalt_FEs_asw_6m <- hurdle(actions ~ did_coeff + questions_per_week + as.factor(t_shock_w), data = w_panel_matched_qual_6m_unalt_b, dist = "negbin")
 
-etable(   pois_matched_unalt_FEs_asw_6m,
+etable(pois_matched_unalt_FEs_asw_6m,
           negbi_matched_unalt_FEs_asw_6m_1)
 
 stargazer(ols_matched_unalt_asw_6m,
@@ -545,6 +480,7 @@ stargazer(ols_matched_unalt_asw_6m,
           type = "text")
 ```
 Interpretation from the 0 inflated/hurdle models:
+- hurdle model is chosen as appropriate as all the observations are "at risk" of producing an answer, hence 0s are assumed to have arisen due to sampling only and not due to structural reasons (Rose et al 2006)
 - the introduction of the incentives leads to a large increase in the 0s, which could imply that members left the community
 - little change in the answering behavior of members that have an activity level - however does not include any fixed effects yet 
 - this is without any robust clustered standard errors
@@ -552,6 +488,30 @@ Interpretation from the 0 inflated/hurdle models:
 Models calculated based on suitable pretrends
 
 wil have to use stargazer and decide on what I can fit into one table
+
+```{r}
+#diagnostics
+## getting fitted values and comparing them to observed values
+resids_ols_logged_FEs_m_unalt <- log(w_panel_matched_qual_6m_unalt_b$actions+1) - residuals(ols_logged_fullFEs_matched_unalt_asw_6m)
+
+exp(max(resids_ols_logged_FEs_m_unalt))
+#plot them
+plot(resids_ols_logged_FEs_m_unalt, log(w_panel_matched_qual_6m_unalt_b$actions+1), asp = 1)
+abline(0, 1, col = 'red', lty = 'dashed', lwd = 2)
+
+#plot the residuals of the model with fixed effects
+qqnorm(residuals(ols_logged_fullFEs_matched_unalt_asw_6m), ylab = 'Residuals')
+qqline(residuals(ols_logged_fullFEs_matched_unalt_asw_6m))
+
+#plot the residuals of the model without fixed effects
+qqnorm(residuals(ols_logged_matched_unalt_asw_6m), ylab = 'Residuals')
+qqline(residuals(ols_logged_matched_unalt_asw_6m))
+
+#try this for a poisson distribution
+Ord_plot(w_panel_matched_qual_6m_unalt_b$actions)
+
+```
+
 
 #### Preconditions
 need to run an qq plot to determine normality
@@ -562,13 +522,16 @@ For the difference in difference coefficient to be interpreted as causal, the re
 
 ```{r}
 #set up the model for the pretrend check - negative binomial, unaltered matched
-pretrend_asw_matched_unalt_pois <- glm(actions ~ group*as.factor(t_shock_w) + questions_per_week, family = poisson, data = w_panel_matched_qual_6m_unalt_b) 
+pretrend_pois_m_unalt_asw_6m <- glm(actions ~ group*as.factor(t_shock_w) + questions_per_week, family = poisson, data = w_panel_matched_qual_6m_unalt_b) 
 (theta_pretrend <- glm.nb(actions ~ group*as.factor(t_shock_w) + questions_per_week, data = w_panel_matched_qual_6m_unalt_b)$theta) 
-pretrend_asw_matched_unalt_negbi <- update(pretrend_asw_matched_unalt_pois, family = negative.binomial(theta_pretrend))
+pretrend_nb_m_unalt_asw_6m <- update(pretrend_pois_m_unalt_asw_6m, family = negative.binomial(theta_pretrend))
+
+#negative binomial with fixed effects
+pretrend_pois_FEs_m_unalt_asw_6m <- fepois(actions ~ group*as.factor(t_shock_w) + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), data = w_panel_matched_qual_6m_unalt_b)
 
 
 #plot the pretrends
-fixest::coefplot(pretrend_asw_matched_unalt_negbi, keep = ":",
+fixest::coefplot(pretrend_pois_FEs_m_unalt_asw_6m, keep = ":",
                                                             col = 4, 
                                                             main = "6 months trend of answers per user",
                                                             xlab = "interaction group x week",
@@ -576,7 +539,7 @@ fixest::coefplot(pretrend_asw_matched_unalt_negbi, keep = ":",
 
 ```
 
-For optimal pretrends one would want the confidence intervals in each period to cross the horizontal line at y=0, implying that statistically, difference in the change from period to period in each group is equal to 0. As is evident from the pretrend analysis above using the negative binomial specification, pretrends are not optimal when comparing the two groups, raising considerable doubt about whether the difference-in-difference coefficient can be interpreted as representing the causal effect of the symbolic award introduction. 
+For optimal pretrends one would want the confidence intervals in each period to cross the horizontal line at y=0, implying that statistically, difference in the change from period to period in each group is equal to 0 (see Barbosu and Gans, 2017). As is evident from the pretrend analysis above using the poisson regression with fixed effects on the week and individual level specification (as well as with the Negative Binomial specification), pretrends are not optimal when comparing the two groups, raising considerable doubt about whether the difference-in-difference coefficient can be interpreted as representing a causal effect of the symbolic award introduction. 
 
 ```{r}
 #pretrends for answers using the log transformed dependent variable - including individual fixed effects
@@ -589,17 +552,25 @@ summary(pretrends_asw_matched_unalt_log)
 
 tidy_log_pretrends <- tidy(pretrends_asw_matched_unalt_log, conf.int = T)
 
-tidy_log_pretrends %>% filter(is.na(estimate) == F, term != "questions_per_week") %>% ggplot(aes(x = term, y = estimate)) + 
+tidy_log_pretrends$week <-  c(-72:23)
+
+
+tidy_log_pretrends %>% filter(is.na(estimate) == F, term != "questions_per_week") %>%
+  ggplot(aes(x = week, y = estimate)) + 
   geom_point() + 
   geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
   geom_hline(yintercept = 0) + 
-  geom_vline(xintercept = "group:as.factor(t_shock_w)0", color = "red")
+  geom_vline(xintercept = 0, color = "red") + 
+  labs(title = "Pretrend analysis logged answers \n (including time and individaul FEs + individual clustered standard errors) \n 6 months around shock") + 
+  theme(plot.title = element_text(hjust = 0.5), 
+        axis.text = element_text(angle = 90))
   
 ```
 
-The pretrends above, which are based on the model specification using the logged dependent variable, including indivdual and time fixed effects as well as clustering the standard errors on the individual, while not perfect, provide better arguments for interpreting the difference in difference coefficient of the model as causal. 
+The pretrends above, which are based on the model specification using the logged dependent variable, including individual and time fixed effects as well as clustering the standard errors on the individual, while not perfect, provide better arguments for interpreting the difference in difference coefficient of the model as causal (it should be noted here, that for the week*group interaction in period -18, no coefficient was calculated). 
 
-In summary, while the distribution of the dependent variable suggests that a count model, specifically one that accounts for overdispersion, should be used, the pretrends do not allow for the causal interpretation of the DiD coefficient. Taking into account that the pretrends look more promising when using the logged DV specification for the pretrend analysis, in addition to the fact that the DiD coefficient is negative and significant in every model specification, the conclusion is drawn that the introduction of the symbolic awards leads to a reduction in the average answers per user. 
+In summary, while the distribution of the dependent variable suggests that a count model, specifically one that accounts for overdispersion and zero inflation, should be used, the pretrends do not allow for the causal interpretation of the DiD coefficient. Taking into account that the pretrends look more promising when using the logged DV specification for the pretrend analysis, in addition to the fact that the DiD coefficient is negative and significant in the model specifications without modelling the non-zeros seperately, the conclusion is drawn that the introduction of the symbolic awards leads to a reduction in the average answers per user. Pretrend checks for the hurdle model were not able to be shown as no coefficient could be calculated for the week*group interaction effect. Hence, until a solution is found for this issue, it can't be assumed that the positive change in contribution behavior suggested by the coefficients of the hurdle model are causally related to the introduction of the symbolic awards. 
+
 
 # Concluding remarks
 
