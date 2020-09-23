@@ -24,6 +24,7 @@ if (!require(alpaca)) install.packages("alpaca"); library(alpaca) #for non-linea
 if (!require(boot)) install.packages("boot"); library(boot) #for bootstrapped standard errors
 if (!require(clusterSEs)) install.packages("clusterSEs"); library(clusterSEs) #for bootstrapped standard errors
 if (!require(gtools)) install.packages("gtools"); library(gtools) #package including quantcut for creating quantile variables from continuous ones 
+if (!require(countreg)) install.packages("countreg"); library(countreg) #package including quantcut for creating quantile variables from continuous ones 
 
 #the dataframes I have to load
 #the point where I start to clean the panel data from users
@@ -551,3 +552,99 @@ w_panel_matched_qual_6m_qs_b <- w_panel_did_qual_as_regUs_6m_b %>% filter(user_I
 
 #include only individuals that were matched on unaltered matching variables
 w_panel_matched_qual_6m_unalt_b <- w_panel_did_qual_as_regUs_6m_b %>% filter(user_ID %in% match_data_unalt$user_ID)
+
+#### A data simulation experiment #####
+
+#simulate a simple before and after dataset of counts based on poisson distribution
+set.seed(543)
+n <- 50000
+group_1 <- sample(c(0,1), size = n, replace = T)
+treatment <- sample(c(0,1), size = n, replace = T)
+y_sim <- rpois(n = n, lambda = exp(1.6 + 0.5*group_1 - 0.69*treatment - 0.8*group_1*treatment))
+
+#what does the distribution show
+table(y_sim, group_1)
+
+#what does the ord_plot show
+Ord_plot(y_sim)
+
+#run a model according to the correct specifications
+m1 <- glm(y_sim ~ group_1*treatment, family = poisson)
+#run a model according to incorrect specifications
+m2 <- glm(y_sim ~ group_1, family = poisson)
+#run a ols model
+m3 <- lm(y_sim ~ group_1*treatment)
+#run a logged ols model
+m4 <- lm(log(y_sim +1) ~ group_1*treatment)
+
+#show the different models
+stargazer(m1,m2,m3,m4,
+          type = "text")
+
+exp(m1$coefficients)          #### shows that all of the above models are pretty good in terms of similar coefffs ####
+
+#plot qq_plots of the model
+qqnorm(residuals(m4))
+qqline(residuals(m4))
+
+#plot rootgrams for the models
+countreg::rootogram(m1)
+countreg::rootogram(m2)
+
+
+### fitting a 0 infalted model
+
+set.seed(543)
+
+#set the number of observations
+n <- 50000
+#set the dummy variable for group
+group_1 <- sample(c(0,1), size = n, replace = TRUE)
+#set the dummy variable for treatment
+treatment <- sample(c(0,1), size = n, replace = TRUE)
+
+#simulate the 0s, giving a probability for the occurence of 1
+z <- rbinom(n = n, size = 1, prob = 0.3) 
+
+#simulate the negative binomial distributed, 0 infalted ys. Based loosly on the answer parameters from my models
+y_sim <- ifelse(z == 0, 0, 
+                rnbinom(n = n, 
+                        mu = exp(1.6 + 0.5*group_1 - 0.69*treatment - 0.8*group_1*treatment), 
+                        size = 0.35))
+
+#plot the distribution
+barplot(table(y_sim))
+barplot(table(w_panel_matched_qual_6m_unalt_b$actions))
+
+###fit some models
+formula_m <- y_sim ~ group_1*treatment
+#the correct specification
+m1 <- pscl::zeroinfl(y_sim ~ group_1*treatment|1, dist = "negbin")
+#the correct specification without 0 inflation
+m2 <- glm.nb(y_sim ~ group_1*treatment)
+#the poisson specification without 0 inflation
+m3 <- glm(formula_m, family = poisson)
+#an ols model
+m4 <- lm(formula_m)
+#an logged ols model
+m5 <- lm(log(y_sim + 1) ~ group_1*treatment)
+
+#show the summary of the models
+stargazer(m2,m3,m4,m5,
+          type = "text")
+
+
+summary(m1)
+
+exp(m1$coefficients[[1]]) 
+
+#show the distribution of errors
+qqnorm(residuals(m5))
+qqline(residuals(m5))
+
+#show the rootograms
+par(mfrow = c(1, 3))
+countreg::rootogram(m1)
+countreg::rootogram(m2)
+countreg::rootogram(m3)
+par(mfrow = c(1, 1))

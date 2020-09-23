@@ -463,9 +463,9 @@ pois_matched_unalt_FEs_asw_6m <- fepois(actions ~ group*post_treatment + questio
 #negative binomial - with fixed effects
 negbi_matched_unalt_FEs_asw_6m_1 <- fenegbin(actions ~ did_coeff + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), w_panel_matched_qual_6m_unalt_b)
 # poisson hurdle - with dummies for time fixed effects
-pois_h_matched_unalt_FEs_asw_6m <- hurdle(actions ~ did_coeff + questions_per_week + as.factor(t_shock_w), data = w_panel_matched_qual_6m_unalt_b)
+pois_h_matched_unalt_FEs_asw_6m <- pscl::hurdle(actions ~ did_coeff + questions_per_week + as.factor(t_shock_w), data = w_panel_matched_qual_6m_unalt_b)
 # negbi hurdle - with dummies for time fixed effects
-negbi_h_matched_unalt_FEs_asw_6m <- hurdle(actions ~ did_coeff + questions_per_week + as.factor(t_shock_w), data = w_panel_matched_qual_6m_unalt_b, dist = "negbin")
+negbi_h_matched_unalt_FEs_asw_6m <- pscl::hurdle(actions ~ did_coeff + questions_per_week + as.factor(t_shock_w), data = w_panel_matched_qual_6m_unalt_b, dist = "negbin")
 
 etable(pois_matched_unalt_FEs_asw_6m,
           negbi_matched_unalt_FEs_asw_6m_1)
@@ -490,6 +490,7 @@ Models calculated based on suitable pretrends
 wil have to use stargazer and decide on what I can fit into one table
 
 ```{r}
+library(countreg) #Dangerous, as it overwrites the pscl hurdle models!
 #diagnostics
 ## getting fitted values and comparing them to observed values
 resids_ols_logged_FEs_m_unalt <- log(w_panel_matched_qual_6m_unalt_b$actions+1) - residuals(ols_logged_fullFEs_matched_unalt_asw_6m)
@@ -509,6 +510,14 @@ qqline(residuals(ols_logged_matched_unalt_asw_6m))
 
 #try this for a poisson distribution
 Ord_plot(w_panel_matched_qual_6m_unalt_b$actions)
+
+#plot rootograms for different models, starting with poissons and NB models without fixed effects
+countreg::rootogram(pois_matched_unalt_asw_6m)
+countreg::rootogram(negbi_matched_unalt_asw_6m)
+
+#rootograms for the hurdle models
+countreg::rootogram(pois_h_matched_unalt_asw_6m)
+countreg::rootogram(negbi_h_matched_unalt_asw_6m)
 
 ```
 
