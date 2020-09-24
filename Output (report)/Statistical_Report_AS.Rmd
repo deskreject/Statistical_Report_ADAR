@@ -63,6 +63,7 @@ if (!require(boot)) install.packages("boot"); library(boot) #for bootstrapped st
 if (!require(clusterSEs)) install.packages("clusterSEs"); library(clusterSEs) #for bootstrapped standard errors
 if (!require(pscl)) install.packages("pscl"); library(pscl) #for the zero inflated and hurdle models
 if (!require(vcd)) install.packages("vcd"); library(vcd) #for count regression diagnostics
+if (!require(vcdExtra)) install.packages("vcdExtra"); library(vcdExtra) #for count regression diagnostics
 
 #loading the necessary dataframes
 load("C:/R work/Advanced data analytics with R/Statistical Report/data/w_panel_did_qual_as_regUs_6m_b.Rda")
@@ -421,8 +422,31 @@ What follows in the next section will be the analysis of how the introduction of
 
 ### Performance analysis
 
-here the equation has to be placed
-- need to preface that I will be using count regressions as the main model (if I can make them work) given the non-normal, count distribution of the data being investigated. 
+Given the non-negative integer values the dependent variable takes on, and taking into account the right tail skeweness of its distribution shown above, it makes sense to choose a model which is more suitable than an OLS regression specification. There are a number of options available that rely on more suitable distributional properties to model the residuals, which is why it makes sense to investigate the dependent variable in more detail before deciding on a specification. 
+
+```{r}
+dv <- w_panel_matched_qual_6m_unalt_b$actions
+
+#show ord plot
+Ord_plot(dv)
+
+#the "xxxxness" plot, using poisson
+distplot(dv, type = "poisson")
+
+#the "xxxxxness" plot, using nbin
+distplot(dv, type = "nbinom")
+
+#the goodfit function poisson
+summary(goodfit(dv))
+
+#the goodfit function nbin
+plot(goodfit(dv, type = "nbinom"))
+
+#the goodfit funciton for binomial distribution
+plot(goodfit(dv, type = "binom"))
+
+```
+
 - just the general model first. If I have time, I will try to write out the regression equation for the poisson models etc. 
 
 ```{r}
@@ -479,18 +503,43 @@ stargazer(ols_matched_unalt_asw_6m,
           negbi_h_matched_unalt_asw_6m,
           type = "text")
 ```
-Interpretation from the 0 inflated/hurdle models:
-- hurdle model is chosen as appropriate as all the observations are "at risk" of producing an answer, hence 0s are assumed to have arisen due to sampling only and not due to structural reasons (Rose et al 2006)
+
+The models above are presented to compare models with and without fixed effects, as well as models that are distributionally more suitable for the dependent variable of interest (count models, specifically the hurdle models) and ones that are less suitable. A hurdle model is chosen as appropriate vs a zero inflated model as all the observations are "at risk" of producing an answer, hence 0s are assumed to have arisen due to sampling only and not due to structural reasons (Rose et al 2006). 
+
+When inspecting the coefficients, all models 
 - the introduction of the incentives leads to a large increase in the 0s, which could imply that members left the community
 - little change in the answering behavior of members that have an activity level - however does not include any fixed effects yet 
 - this is without any robust clustered standard errors
 
-Models calculated based on suitable pretrends
-
-wil have to use stargazer and decide on what I can fit into one table
+Below a model comparison is provided, showing the different fit parameters used to assess which of the models to choose based on the fit parameters (AIC, BIC and LR ratio)
 
 ```{r}
-library(countreg) #Dangerous, as it overwrites the pscl hurdle models!
+
+#showing the fit of the count models
+LRstats(ols_matched_unalt_asw_6m,
+          ols_logged_matched_unalt_asw_6m,
+          ols_logged_fullFEs_matched_unalt_asw_6m,
+          pois_matched_unalt_asw_6m,
+          negbi_matched_unalt_asw_6m,
+          pois_h_matched_unalt_asw_6m,
+          negbi_h_matched_unalt_asw_6m)
+
+#showing the model summaries of the models that did not get recognized by LRstats
+summary(pois_matched_unalt_FEs_asw_6m)
+summary(negbi_matched_unalt_FEs_asw_6m_1)
+
+```
+
+
+From the model comparison above, looking at AIC & BIC values, a few observations can be made. On the one hand, the OLS model with the logged DV and FE included has the lowest AIC. 
+- point out fact of lower DFs though due to individual fixed effects, which leads to exclusion of individuals who are not active in both periods
+- point out fact that hurdle model makes sense from a distribution stand point, however assumes members are split into portion of people who would never answer, and people who would answer. Hence, the results have to be interpreted as looking at a subset of members that have a naturally higher rate of answering
+
+#### Preconditions
+need to run an qq plot to determine normality
+
+```{r}
+if (!require(countreg)) install.packages("countreg"); library(countreg)#Dangerous, as it overwrites the pscl hurdle models!
 #diagnostics
 ## getting fitted values and comparing them to observed values
 resids_ols_logged_FEs_m_unalt <- log(w_panel_matched_qual_6m_unalt_b$actions+1) - residuals(ols_logged_fullFEs_matched_unalt_asw_6m)
@@ -508,8 +557,6 @@ qqline(residuals(ols_logged_fullFEs_matched_unalt_asw_6m))
 qqnorm(residuals(ols_logged_matched_unalt_asw_6m), ylab = 'Residuals')
 qqline(residuals(ols_logged_matched_unalt_asw_6m))
 
-#try this for a poisson distribution
-Ord_plot(w_panel_matched_qual_6m_unalt_b$actions)
 
 #plot rootograms for different models, starting with poissons and NB models without fixed effects
 countreg::rootogram(pois_matched_unalt_asw_6m)
@@ -522,8 +569,6 @@ countreg::rootogram(negbi_h_matched_unalt_asw_6m)
 ```
 
 
-#### Preconditions
-need to run an qq plot to determine normality
 
 ### Pretrend analysis
 
