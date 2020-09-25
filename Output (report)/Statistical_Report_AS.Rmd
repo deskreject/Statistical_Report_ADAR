@@ -531,22 +531,24 @@ summary(negbi_matched_unalt_FEs_asw_6m_1)
 ```
 
 
-From the model comparison above, looking at AIC & BIC values, a few observations can be made. On the one hand, the OLS model with the logged DV and FE included has the lowest AIC. 
-- point out fact of lower DFs though due to individual fixed effects, which leads to exclusion of individuals who are not active in both periods
-- point out fact that hurdle model makes sense from a distribution stand point, however assumes members are split into portion of people who would never answer, and people who would answer. Hence, the results have to be interpreted as looking at a subset of members that have a naturally higher rate of answering
+From the model comparison above, looking at AIC & BIC values, a few observations can be made. First and foremost, the interpretation of the AIC/BIC/LR values across models with different underlying model distributions is only possible if no terms are dropped in the maximized likelihood estimation (Burnham and Anderson, 2002) - which the researcher cannot not assess given the various R packages used to estimate the models which may differ in the way the fit parameters are calculated.  Furthermore, comparisons across models with different sample sizes does not provide any meaningful information, as the maximized -2log-likelihood can vary widely with sample size (Burnham and Anderson, 2002). This will be an issue when comparing models with and without individual fixed effects, as observations without variance in either the pre or post treatment period (i.e. no answering activity) are dropped from the sample.  
+Looking at the AIC of the different models under above limitations, the OLS model with the logged DV and FE included has the lowest AIC. As mentioned above, this is most likely driven by the fact that the sample size is reduced by dropping observations without enough variation over time. However, when comparing the count regression models (Poisson and Negative Binomial) with and without fixed effects included, the same Looking at the hurdle models, the AIC is lower compared to corresponding non-hurdle models. However, here the underlying sample used to estimate the count models differs as well. 
+
+In summary, model selection can't be driven entirely by fit parameters, but has to be guided by the researchers understanding of the data being analyzed as well as by the suitability of pretrends to allow any causal interpretation of diff-in-diff coefficients. What follows are an investigation of the error distribution as well as predictive ability of the count regression models to offer further insights for choosing the best model.  
 
 #### Preconditions
-need to run an qq plot to determine normality
+
+Below, the qq plot for the residuals as well as the comparison of fitted vs actual answers of the logged DV models are presented to illustrate non-normality (and hence untrustworthyness of standard errors). 
+Furthermore, the rootograms of the count models are presented, which can be used to assess the predictive capabilties of the underlying models. 
 
 ```{r}
 if (!require(countreg)) install.packages("countreg"); library(countreg)#Dangerous, as it overwrites the pscl hurdle models!
 #diagnostics
 ## getting fitted values and comparing them to observed values
-resids_ols_logged_FEs_m_unalt <- log(w_panel_matched_qual_6m_unalt_b$actions+1) - residuals(ols_logged_fullFEs_matched_unalt_asw_6m)
-
-exp(max(resids_ols_logged_FEs_m_unalt))
+logged_fitted_values <- log(w_panel_matched_qual_6m_unalt_b$actions+1) - residuals(ols_logged_fullFEs_matched_unalt_asw_6m)
+logged_answers_sample <- log(w_panel_matched_qual_6m_unalt_b$actions+1)
 #plot them
-plot(resids_ols_logged_FEs_m_unalt, log(w_panel_matched_qual_6m_unalt_b$actions+1), asp = 1)
+plot(logged_fitted_values,logged_answers_sample , xlim = c(0,3))
 abline(0, 1, col = 'red', lty = 'dashed', lwd = 2)
 
 #plot the residuals of the model with fixed effects
@@ -557,15 +559,30 @@ qqline(residuals(ols_logged_fullFEs_matched_unalt_asw_6m))
 qqnorm(residuals(ols_logged_matched_unalt_asw_6m), ylab = 'Residuals')
 qqline(residuals(ols_logged_matched_unalt_asw_6m))
 
+```
+
+The above shows, that as already established, the fitted values are barely representative of the actual answers using the OLS specification with a logged dependent variable. Furthermore, the qq plots suggest that the DV is highly non-normally distributed. Both illustrations provide evidence for a count model providing more reliable predictive power and thus a more suitable fit for the modeled dv. Below, rootograms of the count models are provided to offer insight into which is best able to predict the in-sample answers. 
+
+```{r}
+
 
 #plot rootograms for different models, starting with poissons and NB models without fixed effects
 countreg::rootogram(pois_matched_unalt_asw_6m)
 countreg::rootogram(negbi_matched_unalt_asw_6m)
 
+
 #rootograms for the hurdle models
 countreg::rootogram(pois_h_matched_unalt_asw_6m)
 countreg::rootogram(negbi_h_matched_unalt_asw_6m)
 
+```
+inspecting the rootograms above, it can be observed that the hurdle models display less fitting errors, while the negative binomial versions perform better than the poisson model. Both is no surprise given the combination of 0 inflation and overdispersion in the distribution of the dv of interest. 
+
+```{r}
+
+#outlier test for the negbi models
+outlierTest(negbi_matched_unalt_asw_6m)
+residualPlots(negbi_matched_unalt_asw_6m)
 ```
 
 
