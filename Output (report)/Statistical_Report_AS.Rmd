@@ -352,6 +352,7 @@ w_panel_matched_qual_6m_unalt_b <- w_panel_did_qual_as_regUs_6m_b %>% filter(use
 ```
 
 
+
 As shown in the descriptive statistics table, there is little improvement in terms of similarity of means in the DV as well as the control variable, questions per week. However, the standard deviations for the DV in the treated and control community are more similar than before.
 
 Finally, the descriptive statistics for the treated and control community are provided based on observations that were matched on the factor variables constructed from quantiles of the matching variables. 
@@ -420,7 +421,7 @@ What follows in the next section will be the analysis of how the introduction of
 ### hypotheses that will be tested
 
 
-### Performance analysis
+### Pre-assessment of dependent variable distribution
 
 Given the non-negative integer values the dependent variable takes on, and taking into account the right tail skeweness of its distribution shown above, it makes sense to choose a model which is more suitable than an OLS regression specification. There are a number of options available that rely on more suitable distributional properties to model the residuals, which is why it makes sense to investigate the dependent variable in more detail before deciding on a specification. 
 
@@ -446,7 +447,21 @@ summary(goodfit(dv, type = "nbinom"))
 
 The above plots give a summary of the distribution of the depenedent variable to assess which model is the best choice given the distribution. The Ord Plot, which plots the number of occurrences against a frequency ratio, suggest that a logarithmic series might fit the DV distribution best. However the ord plot is sensitive to single outlier values, which is why dist plots provide better indications for which distribution the variable may follow (see Friendly, 2000). Checking these plots as well as the likelihood provided for both the poisson and negative binomial, it is more likely that the variable follows a negative binomial distribution. 
 
-```{r, results= 'asis'}
+### Model building and testing
+
+To test the hypothesis of this research, that the introduction of symbolic awards has a negative effect on the asnwering behavior of members, a difference in difference design is employed, which translates into the following regression equation:
+
+$$ answers_{it} = \delta_{1}treatment_{t} + \delta_{2}group_{i} + \delta_{3}(group_{i}*treatment_{t}) + \beta_{1}questions_{t} + \alpha_{t} + \gamma_{i} + \epsilon_{i} $$
+
+in this equation, the coefficient of interest is $\delta_{3}$ which represents the difference in difference coefficient, i.e. the treatement effect on the treated. Given assumptions on parallel pretrends hold, this coefficient should give an estimate for the change in average weekly answering behavior of users after the introduction of badges. Questions per week are included as a control variable, to control for any changes in answering behavior that may be driven by the availability of questions during a specific time period. In the above full equation, individual and time fixed effects as well as errors clustered on the individual level, represented by $\alpha_{t}$, $\gamma_{i}$ and $\epsilon_{i}$ respectively. Errors are clustered on the individual level, as there is grounds to believe that errors may be correlated over time by individual. 
+
+Below, a number of different regression specifications are calculated. OLS regressions are shown as baseline models, with and without fixed effects. The reason why both are shown is, that the inclusion of individual fixed effects makes intuitive sense to control for any difference in levels between member's answering behavior in the two communities. However, including them also leads to the exclusion of individuals that that don't show any variance in their answering behavior in either the pre-treatment or post-treatment period. A large number of users in the sample only are active once, and some member are active multiple times but only in one of the two periods. Hence, the sample size is reduced considerably when including these individual fixed effects, effectively leading to the diff-in-diff coefficient to measure the change in answering behavior of members that portray an above average activity level. 
+
+Poisson and Negative binomial models, which are more suitable given the distributional properties of the dv of interest, are shown with and without fixed effects as well. Finally, the results of hurdle models are shown, which in principle should be able to deal with the 0-inflation issue better than regular count models. A hurdle model is chosen as appropriate vs a zero inflated model as all the observations are "at risk" of producing an answer, hence 0s are assumed to have arisen due to sampling only and not due to structural reasons (Rose et al 2006). 
+
+The data after matching on unaltered (i.e. without quantiles) was used to run the models. 
+
+```{r, message = F}
 
 #### unaltered data ####
 #run the logged and unlogged dv models
@@ -490,6 +505,11 @@ negbi_h_matched_unalt_FEs_asw_6m <- pscl::hurdle(actions ~ did_coeff + questions
 
 etable(pois_matched_unalt_FEs_asw_6m,
           negbi_matched_unalt_FEs_asw_6m_1)
+```
+
+```{r, results= 'asis'}
+
+
 
 stargazer(ols_matched_unalt_asw_6m,
           ols_logged_matched_unalt_asw_6m,
@@ -498,17 +518,26 @@ stargazer(ols_matched_unalt_asw_6m,
           negbi_matched_unalt_asw_6m,
           pois_h_matched_unalt_asw_6m,
           negbi_h_matched_unalt_asw_6m,
-          type = "text")
+          type = "html")
 ```
 
-The models above are presented to compare models with and without fixed effects, as well as models that are distributionally more suitable for the dependent variable of interest (count models, specifically the hurdle models) and ones that are less suitable. A hurdle model is chosen as appropriate vs a zero inflated model as all the observations are "at risk" of producing an answer, hence 0s are assumed to have arisen due to sampling only and not due to structural reasons (Rose et al 2006). 
 
-When inspecting the coefficients, all models 
-- the introduction of the incentives leads to a large increase in the 0s, which could imply that members left the community
-- little change in the answering behavior of members that have an activity level - however does not include any fixed effects yet 
-- this is without any robust clustered standard errors
+
+When inspecting the models above, all but the hurdle models show a clear and significant decrease in the average answering behavior based on inspection of the interaction term, i.e. the diff-in-diff coefficient (for the model with the logged dv including fixed effects, the variable "did_coeff" is of relevance, which was constructed by multiplying the group with the post treatment variable. This was done as the package used to calculate the fixed effects models didn't run when collinear terms were included). As expected, the explanatory power of the OLS models without fixed effects is very low, based on the adjusted R2, which increases signficantly when fixed effects are included. 
+
+Looking at the hurdle model results, which show an increase in average answering behavior, the most interesting element is not the coefficient of the count model, but of the zero/one binomial model. Interpreting the interaction term here, that the likelihood of not providing any answers (i.e. being excluded from the count model) increases dramatically after introduction of the incentives. 
+```{r}
+hurdle_summary <- summary(pois_h_matched_unalt_asw_6m)
+
+hurdle_summary$coefficients$zero
+```
+
+The coefficients of the count regression are a little harder to interpret, as it wasn't possible to specify time and individual fixed effects, thus inclusion or exclusion of observations was not made based on the user level, leading to a mean comparison of the two groups across two time periods, not accounting for user level panel dynamics. 
+
+It also has to be noted that the discrepancy between the coefficients in the OLS with logged DV models vs count models is driven in large part by the constant that is added to the dv in order to address the existance of 0s. When adding smaller constants than 1, the coefficient approximates the coefficient in the count models. 
 
 Below a model comparison is provided, showing the different fit parameters used to assess which of the models to choose based on the fit parameters (AIC, BIC and LR ratio)
+
 
 ```{r}
 
@@ -529,15 +558,14 @@ summary(negbi_matched_unalt_FEs_asw_6m_1)
 
 
 From the model comparison above, looking at AIC & BIC values, a few observations can be made. First and foremost, the interpretation of the AIC/BIC/LR values across models with different underlying model distributions is only possible if no terms are dropped in the maximized likelihood estimation (Burnham and Anderson, 2002) - which the researcher cannot not assess given the various R packages used to estimate the models which may differ in the way the fit parameters are calculated.  Furthermore, comparisons across models with different sample sizes does not provide any meaningful information, as the maximized -2log-likelihood can vary widely with sample size (Burnham and Anderson, 2002). This will be an issue when comparing models with and without individual fixed effects, as observations without variance in either the pre or post treatment period (i.e. no answering activity) are dropped from the sample.  
-Looking at the AIC of the different models under above limitations, the OLS model with the logged DV and FE included has the lowest AIC. As mentioned above, this is most likely driven by the fact that the sample size is reduced by dropping observations without enough variation over time. However, when comparing the count regression models (Poisson and Negative Binomial) with and without fixed effects included, the same Looking at the hurdle models, the AIC is lower compared to corresponding non-hurdle models. However, here the underlying sample used to estimate the count models differs as well. 
+Looking at the AIC of the different models under above limitations, the OLS model with the logged DV and FE included has the lowest AIC. As mentioned above, this is most likely driven by the fact that the sample size is reduced by dropping observations without enough variation over time. However, when comparing the count regression models (Poisson and Negative Binomial) with and without fixed effects included, the same Looking at the hurdle models, the AIC is lower compared to corresponding non-hurdle models. However, here the underlying sample used to estimate the count models differs as well.
 
-It also has to be noted that the discrepancy between the coefficients in the OLS with logged DV models vs count models is driven in large part by the constant that is added to the dv in order to address the existance of 0s. When adding smaller constants than 1, the coefficient approximates the coefficient in the count models. 
 
-In summary, model selection can't be driven entirely by fit parameters, but has to be guided by the researchers understanding of the data being analyzed as well as by the suitability of pretrends to allow any causal interpretation of diff-in-diff coefficients. What follows are an investigation of the error distribution as well as predictive ability of the count regression models to offer further insights for choosing the best model.  
+In summary, model selection can't be driven entirely by fit parameters, but has to be guided by the researchers understanding of the data being analyzed and the suitability of the models given the data. What follows is an investigation of the error distribution as well as predictive ability of the count regression models to offer further insights for choosing the best model.  
 
 #### Preconditions
 
-Below, the qq plot for the residuals as well as the comparison of fitted vs actual answers of the logged DV models are presented to illustrate non-normality (and hence untrustworthyness of standard errors). 
+Below, the qq plot for the residuals as well as the comparison of fitted vs actual answers of the logged DV models are presented to illustrate non-normality (and hence untrustworthiness of standard errors). 
 Furthermore, the rootograms of the count models are presented, which can be used to assess the predictive capabilities of the underlying models. 
 
 ```{r}
@@ -560,22 +588,25 @@ qqline(residuals(ols_logged_matched_unalt_asw_6m))
 
 ```
 
-The above shows, that as already established, the fitted values are barely representative of the actual answers using the OLS specification with a logged dependent variable. Furthermore, the qq plots suggest that the DV is highly non-normally distributed. Both illustrations provide evidence for a count model providing more reliable predictive power and thus a more suitable fit for the modeled dv. Below, rootograms of the count models are provided to offer insight into which is best able to predict the in-sample answers. 
+The above shows, that as already established, the fitted values are barely representative of the actual answers using the OLS specification with a logged dependent variable, even with fixed effects. Furthermore, the qq plots suggest that the DV is highly non-normally distributed. Both illustrations provide evidence for a count model providing more reliable predictive power and thus a more suitable fit for the modeled dv. Below, rootograms of the count models are provided to offer insight into which is best able to predict the in-sample answers. 
 
 ```{r}
-
+par(mfrow = c(2, 2))
 
 #plot rootograms for different models, starting with poissons and NB models without fixed effects
-countreg::rootogram(pois_matched_unalt_asw_6m)
-countreg::rootogram(negbi_matched_unalt_asw_6m)
+countreg::rootogram(pois_matched_unalt_asw_6m, main = "Poisson")
+countreg::rootogram(negbi_matched_unalt_asw_6m, main = "Negative Binomial")
 
 
 #rootograms for the hurdle models
-countreg::rootogram(pois_h_matched_unalt_asw_6m)
-countreg::rootogram(negbi_h_matched_unalt_asw_6m)
+countreg::rootogram(pois_h_matched_unalt_asw_6m, main = "Hurdle (Poisson)")
+countreg::rootogram(negbi_h_matched_unalt_asw_6m, main = "Hurdle (Negative Binomial")
+
+par(mfrow = c(1, 1))
 
 ```
-inspecting the rootograms above, it can be observed that the hurdle models display less fitting errors, while the negative binomial versions perform better than the poisson model. Both is no surprise given the combination of 0 inflation and overdispersion in the distribution of the dv of interest. 
+
+inspecting the rootograms above, it can be observed that the hurdle models display less fitting errors, while the negative binomial versions perform better than the poisson model. Both is no surprise given the combination of 0 inflation and overdispersion in the distribution of the dv of interest. A rootogram plotting the models with fixed effects was not available 
 
 ```{r}
 
@@ -592,7 +623,7 @@ infIndexPlot(ols_logged_matched_unalt_asw_6m) #--> ID: 647540000 identified
 infIndexPlot(negbi_matched_unalt_asw_6m) #--> ID: 647540000 identified again
 ```
 
-An investigation of the outliers for 2 of the models, the OLS with the logged dependent variable as well as the negative binomial regression, yielded at least 2 users, 1 from each of the communities, that displayed unusually high values of answers, leading them to be flagged as outliers according to studentized residual and cook's distance values. 
+An investigation of the outliers for 2 of the models, the OLS with the logged dependent variable as well as the negative binomial regression, yielded at least 2 users, 1 from each of the communities, that displayed unusually high values of answers, leading them to be flagged as outliers according to studentized residual and cook's distance values. once again, the above outlier identification functions were not available for the models with fixed effects. 
 To test their impact on the coefficients as well as model fit, models with and without fixed effects for the two specifications used to test for outliers were rerun as shown below
 
 ```{r, results= 'asis'}
@@ -620,11 +651,11 @@ stargazer(ols_logged_matched_unalt_asw_6m,
           ols_logged_Oless_fullFEs_m_unalt_asw_6m,
           negbi_matched_unalt_asw_6m,
           negbi_Oless_m_unalt_asw_6m,
-          type = "text")
+          type = "html")
 
 ```
 
-Purging the outliers from the dataset led to a minimal change in the coefficient compared to the models with the two outliers in all but the negative binomial specification with fixed effects. The negative binomial model saw a further decrease in the did coefficient after exclusion of outliers
+Purging the outliers from the dataset led to a minimal change in the coefficient compared to the models with the two outliers in all but the negative binomial specification with fixed effects. The negative binomial model saw a further decrease in the did coefficient after exclusion of outliers.
 For the remainder of the statistical report, the models including the outliers are included, as apart from the negative binomial model with fixed effects, the coefficients don't change significantly after excluding users and the researchers decided to opt against reducing the amount of data available. 
 
 
@@ -632,16 +663,15 @@ For the remainder of the statistical report, the models including the outliers a
 
 To test whether the parallel pretrends assumption holds, the following equation is used:
 
-For the difference in difference coefficient to be interpreted as causal, the required assumption is that the pretrends of the dependent variable are comparable in both groups. I.e. they don't need to be the same in level, however there should not be any serious deviations in changes over time between the two treated and comparison groups. Below, the pretrends are presented for the negative binomial regression specification. It has to be said that it was not possible to estimate pretrends for the negative negative binomial models with fixed effects or the hurdle models as they did not converge - the implications of this is currently not clear to the authors. 
+$$ y_{it} = \beta_{1}*group_{i} + \beta_{2}(group_{i}*week_{t}) + \beta_{3}questions_{t} + \alpha_{t} + \gamma_{i} + \epsilon_{it} $$
 
-```{r}
-#set up the model for the pretrend check - negative binomial, unaltered matched
-pretrend_pois_m_unalt_asw_6m <- glm(actions ~ group*as.factor(t_shock_w) + questions_per_week, family = poisson, data = w_panel_matched_qual_6m_unalt_b) 
-(theta_pretrend <- glm.nb(actions ~ group*as.factor(t_shock_w) + questions_per_week, data = w_panel_matched_qual_6m_unalt_b)$theta) 
-pretrend_nb_m_unalt_asw_6m <- update(pretrend_pois_m_unalt_asw_6m, family = negative.binomial(theta_pretrend))
+For the difference in difference coefficient to be interpreted as causal, the required assumption is that the pretrends of the dependent variable are comparable in both groups. I.e. they don't need to be the same in level, however there should not be any serious deviations in changes over time between the two treated and comparison groups. Here, $\beta_{2}$ gives a point estimate of the difference in answering behavior between the treatment and control group
 
-#negative binomial with fixed effects --> don't work, can't estimate SEs. need to opt for poisson
-pretrend_pois_FEs_m_unalt_asw_6m <- fepois(actions ~ group*as.factor(t_shock_w) + questions_per_week|as.factor(user_ID), data = w_panel_matched_qual_6m_unalt_b)
+Below, the point estimates and standard errors for the $\beta_{2}$ are presented for the poisson regression with fixed effects specification - the most suitable model given the data structure aside from the negative binomial specification. It has to be said that it was not possible to estimate pretrends for the negative binomial models with fixed effects or the hurdle models as they did not converge - the implications of this is currently not clear to the authors. In addition, the pretrends using the OLS model with the logged DV variable, including full fixed effects and errors clustered at the individual level are presented
+
+```{r, message=F, warning=F}
+#Poisson with fixed effects --> NB with FE don't work, can't estimate SEs. need to opt for poisson
+pretrend_pois_FEs_m_unalt_asw_6m <- fepois(actions ~ group*as.factor(t_shock_w) + questions_per_week|as.factor(user_ID) + as.factor(t_shock_w), data = w_panel_matched_qual_6m_unalt_b)
 
 #plot the pretrends
 fixest::coefplot(pretrend_pois_FEs_m_unalt_asw_6m, keep = ":",
@@ -649,15 +679,12 @@ fixest::coefplot(pretrend_pois_FEs_m_unalt_asw_6m, keep = ":",
                                                             main = "6 months trend of answers per user",
                                                             xlab = "interaction group x week",
                                                             ylab = "weekly answers / user")
-
-#plot the pretrends with FEs --> not possible as there is no way to get tidy data for fixest object + one of the periods doesn't have an estimation...
-
-
+abline(v=24, col="red")
 ```
 
-For optimal pretrends one would want the confidence intervals in each period to cross the horizontal line at y=0, implying that statistically, difference in the change from period to period in each group is equal to 0 (see Barbosu and Gans, 2017). As is evident from the pretrend analysis above using the poisson regression with fixed effects on the week and individual level specification (as well as with the Negative Binomial specification), pretrends are not optimal when comparing the two groups, raising considerable doubt about whether the difference-in-difference coefficient can be interpreted as representing a causal effect of the symbolic award introduction. 
+For optimal pretrends one would want the confidence intervals in each period to cross the horizontal line at y=0, implying that statistically, difference in the change from period to period in each group is equal to 0 (see Barbosu and Gans, 2017). As is evident from the pretrend analysis above using the poisson regression with fixed effects on the week and individual level specification, pretrends are not optimal when comparing the two groups, raising considerable doubt about whether the difference-in-difference coefficient can be interpreted as representing a causal effect of the symbolic award introduction. 
 
-```{r}
+```{r, message=F, warning=F}
 #pretrends for answers using the log transformed dependent variable - including individual fixed effects
 
 pretrends_asw_matched_unalt_log <- felm(log(actions+1) ~ group*as.factor(t_shock_w) + questions_per_week|as.factor(t_shock_w)+user_ID|0|user_ID, data = w_panel_matched_qual_6m_unalt_b)
@@ -683,17 +710,27 @@ tidy_log_pretrends %>% filter(is.na(estimate) == F, term != "questions_per_week"
 
 The pretrends above, which are based on the model specification using the logged dependent variable, including individual and time fixed effects as well as clustering the standard errors on the individual, while not perfect, provide better arguments for interpreting the difference in difference coefficient of the model as causal (it should be noted here, that for the week*group interaction in period -18, no coefficient was calculated). 
 
-In summary, while the distribution of the dependent variable suggests that a count model, specifically one that accounts for overdispersion and zero inflation, should be used, the pretrends do not allow for the causal interpretation of the DiD coefficient. Taking into account that the pretrends look more promising when using the logged DV specification for the pretrend analysis, in addition to the fact that the DiD coefficient is negative and significant in the model specifications without modeling the non-zeros separately, only a tentative conclusion can be drawn that the introduction of the symbolic awards leads to a reduction in the average answers per user. Pretrend checks for the hurdle model were not able to be shown as no coefficient could be calculated for the week*group interaction effect, in addition to the fact that it is unclear how the hurdle model can properly be applied to panel data. Hence, until a solution is found for this issue, it can't be assumed that the positive change in contribution behavior suggested by the coefficients of the hurdle model are causally related to the introduction of the symbolic awards. 
-
+In summary, while the distribution of the dependent variable suggests that a count model, specifically one that accounts for overdispersion and zero inflation, should be used, the pretrends do not allow for the causal interpretation of the DiD coefficient. Taking into account that the pretrends look more promising when using the logged DV specification for the pretrend analysis, in addition to the fact that the DiD coefficient is negative and significant in all but the models accounting for 0 inflation (of which the interpretation is unclear as explained above), at best a tentative conclusion can be drawn about the causal effect of the introduction of the symbolic awards. In addition to the fact that it is unclear how the hurdle model can properly be applied to panel data, pretrend checks were not able to be shown as no coefficient could be calculated for the week*group interaction effect. Hence, until a solution is found for this issue, it can't be assumed that the positive change in contribution behavior suggested by the coefficients of the hurdle model are causally related to the introduction of the symbolic awards. 
 
 # Concluding remarks
 
-Criticisms:
-Possibly an option to implement a 0 inflated poisson model, however the researchers were not able to determine how to implement the zeron inflated poisson models. In particular, how to model the probability of having answered or not
+In conclusion, the above analysis does allow us to reject the 0 hypothesis of symbolic award introduction not leading to any significant change in weekly user answering behavior when only considering the coefficients of the difference in difference models. However, taking into account that analysis of the pretrends does not allow us to assert that the parallel trends assumption holds in our context, we cannot claim that the negative effect found by our difference-in-difference specification is causally related to the award introduction. 
+
+A number of issues can be listed, both from a data and performance analysis standpoint. A large issue concerning the data is, taht we cannot confidently claim that some other event which occured before the treatment introduction caused the decline in answers of the treatment group as of this moment. Furthermore, it transpired that the distribution of individual answering behavior in either community is quite different. While in both communities, answering behavior demonstrates power law properties, in that there are a very large number of barely active users and a very small number of highly active users, this effect seems to be especially pronounced in the treated community. We tried to adjust for this using matching procedures, however it seems that while pretrends did impreove compared to the unmatched data, the improvement isn't sufficient to assert parallel trends before treatment for both communities
+
+From an analysis side, technical issues prevented the provision of a full picture. Within the extent of this statistical report, it wasn't possible to find a way to apply a hurdle model that reflected the panel dynamics of the data, hence the interpretation of the coefficient (in addition to the calculation of pretrends) proved difficult. Furthermore, it wasn't possible to assess how well negative binomial models deal with panel data. 
+
+Finally, there are numerous extensions and robustness checks that could have been done but weren't conducted within this statistical report. There are a number of alternative matching algorithms that could have been tried as well as different matching variable combinations that could have been tested beyond what has been done within this report. In addition, the propensity scores could be used as weights instead of using matching as a means of sample readjustment. A further route to try could be entropy balancing. These matched, or adjusted, samples could then be used to choose a sample for the difference in difference models, that offers the most suitable pretrends. Finally, what is missing are robustness checks that test results based on different time periods around the shock as well as running models where the period of the shock is arbitrarily selected. 
+
+Beyond addressing the issues pointed out above, a number of extensions to the current research question will be investigated in the future. The change in answer quality and effort can be measured given the data available on the number of likes and words/answer respectively. In addition, it is worth looking into whether member type can be included as a moderator, depending on the pre-treatment activity level of the users.  
+
+
 
 # Remarks that I would particularly value feedback on
 
-- the pretrends: Is the way I am assessing the parallel trends assumption the only viable way? If the count regression model is the best fitting model but the pretrends as shown aren't parallel, does this mean that I can't refer back to the findings that pretrends are parallel in the logged DV OLS specification?
+- the pretrends: Is the way I am assessing the parallel trends assumption the only viable way? If the count regression model is the best fitting model but the pretrends as shown aren't parallel, does the justification using pretrends from logged OLS model make any sense?
+- Are there any suggested count models to use when I have 0 inflated panel data? Unsure if hurdle/zero inflated models or negative binomial models can deal with panel data
+- the DiD models on the count models are huge (without hurdle specficiation), suggesting a nearly 60% decrease in average answering behavior after the shock. This is not evident from inspecting the pretrends. is the large portion of 0s in the data + the fact that there are more 0s present in the treatment group than the control group after the shock the reason for this? I.e. similar to when adding an extremely low constant (e.g. 0.00001 instead of 1) to the dv variable before logging it leads to the did coefficient changing from a 5% decrease in average answering behavior to a 60% decrease in average answering behavior
 
 # References
 

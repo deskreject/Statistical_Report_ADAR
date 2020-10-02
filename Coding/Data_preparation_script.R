@@ -648,3 +648,44 @@ countreg::rootogram(m1)
 countreg::rootogram(m2)
 countreg::rootogram(m3)
 par(mfrow = c(1, 1))
+
+#### Understanding effect of constants added to log transform on the coefficients ####
+sequencer <- 0.0001
+seq(from = 0.0001, to = 10000, by=sequencer*1000)
+
+
+#### different forms of pretrend visualization
+
+#--> try to add in error bars
+
+#trying to visually inspect trends based on time series
+w_ts_actions_m_ua <- w_panel_matched_qual_6m_unalt_b %>% group_by(t_shock_w, group) %>% dplyr::summarise(user_actions = mean(actions))
+
+#make a plot
+p_ts_actions_m_ua <- w_ts_actions_m_ua %>% ggplot(aes(y = user_actions, x = t_shock_w, color = as.factor(group))) +
+  geom_point() + 
+  geom_line() + 
+  geom_vline(xintercept = 0)
+
+
+#visulaize trends based on balanced quantile data
+w_ts_actions_m_qs <- w_panel_matched_qual_6m_qs_b %>% group_by(t_shock_w, group) %>% dplyr::summarise(user_actions = mean(actions))
+
+#make a plot
+p_ts_actions_m_qs <- w_ts_actions_m_qs %>% ggplot(aes(y = user_actions, x = t_shock_w, color = as.factor(group))) +
+  geom_point() + 
+  geom_line() + 
+  geom_vline(xintercept = 0)
+
+#visualize trends based on unbalanced data
+w_ts_actions_um <- w_panel_did_qual_as_regUs_6m_b %>% group_by(t_shock_w, group) %>% dplyr::summarise(user_actions = mean(actions))
+
+#make a plot
+p_ts_actions_um <- w_ts_actions_um %>% ggplot(aes(y = user_actions, x = t_shock_w, color = as.factor(group))) +
+  geom_point() + 
+  geom_line() + 
+  geom_vline(xintercept = 0)
+
+#show all three
+grid.arrange(p_ts_actions_um, p_ts_actions_m_qs, p_ts_actions_m_ua, ncol = 1)
+

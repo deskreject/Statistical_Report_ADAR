@@ -232,4 +232,25 @@ plot(allEffects(anovafit3.6)) # effect plots for categorical variables; confiden
 anova(anovafit3.6) # sequential "type-I tests" - problematic in unbalanced designs
 Anova(anovafit3.6) # "type-II tests" - better choice than anova, each term is tested after all the others 
 
+#----------------------------------- 4. GLMs - Poisson and NB diagnostics ------------------#
 
+Diagnostics:
+  plot(poissfit4) # smoothed loess curve suggests a trend
+residualPlot(poissfit4)
+residualPlot(poissfit4, type = "rstandard", groups = Mroz$k618, key = FALSE, linear = FALSE, smooth = FALSE, 
+             col = c(carPalette(), "brown"))
+# black points: all that have 0 children in reality -> all the residuals are negative because we are
+# predicting a positive mean value
+# scale of the linear predictor: a value of 0 means exp(0)=1 expected child: For the blue triangles 
+# (1 child in reality), this corresponds to a perfect prediction at coordinate (0, 0). The same 
+# is true for the magenta pluses line at a value of 0.6931472 (= log(2)) on the x-axis (i.e. two children
+# in reality, two children estimated).
+residualPlots(poissfit4)
+influenceIndexPlot(poissfit4)
+influencePlot(poissfit4)
+outlierTest(poissfit4)
+Mroz[327, ] # unusual pattern: 5 children between 6 and 18 although wife is already 52 years old
+qqPlot(rstudent(poissfit4))
+# such plots are often disappointing for discrete responses in that they indicate bad fits even though
+# the model has a reasonably good fit. Half-normal plots could be used instead. Another alternative 
+# are (scaled) quantile residuals (see "DHARMa"-package)
