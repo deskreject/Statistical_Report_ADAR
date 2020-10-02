@@ -1,7 +1,7 @@
 ---
-title: "Statistical_Report_ADAR"
+title: "Statistical Report ADAR"
 author: "Alexander Staub"
-date: "September 11, 2020"
+date: "October 2nd, 2020"
 output: 
   html_document:
     code_folding: "hide"
@@ -10,29 +10,29 @@ output:
 bibliography: C:\\R work\\Advanced data analytics with R\\Statistical Report\\references\\reference_list.bib        
 ---
 
-
-
-Need to have an area of package loading and dataframe loading
-
 # Abstract
-[@Cameron.1994; @Craig.2017]
+
+Much like in traditional public goods contexts, online communities frequently suffer from the under-contribution of knowledge. A common method to incentivize contribution behavior by members are symbolic awards, i.e. non-monetary forms of recognition. While studies have investigated how award reception affects the behavior of individual members [Gallus.2017b; @Park.2015; @Goes.2016], there is lack of knowledge about how the introduction, and thus prospect of receiving an award affects the contribution behavior of members within the community. A quasi-natural experiment is exploited, which occurred in 2015 when a set of symbolic awards were introduced which were meant to incentivize the answering of questions submitted to the community. A difference in difference design is employed, using a structurally similar community as the comparison group, to identify any causal effect of the award introduction on the average answering behavior of users within the treated community. Propensity score matching and panel fixed effects are used to support the identification strategy. Results herein show that the introduction of symbolic awards lead to a decrease in answering behavior, however causality can't be confidently claimed due to violation of the parallel pretrends assumption in at least one difference in difference model specification. This research contributes to the theory of symbolic awards and knowledge creation, in addition to fostering scholarly discourse on new forms of organizing.
+
+
 
 # Introduction
 
-Online communities are developing into an area of increasing relevance for both practice and academic research in fields of economics, management and information systems management, to name a few. The reason being that the proliferation of the internet has reached nearly every corner of the world (Source - Cia factbook?) and is touching and forming an increasing number of areas relevant to work and life in general. Social Media platforms have developed from means to connect to old and new friends, to sources of news, organizing online and offline gatherings and conducting commerce. Special interest groups, from programming to brand enthusiasts, have moved from communicating and exchanging knowledge via listserves and e-mails, to creating and sharing everything from software code (Source on open source) to designs for physical objects (source for 3d printing papers) via dedicated virtual spaces hosted online. As it is reasonable to assume that the trend of interacting and communicating with eachother virtually and unimpeded by physical borders or geographical distance won't be declining in the forseeable future, it is essential to understand the behavior of individuals as well as groups in this relatively new enviornment.
+Online communities are developing into an area of increasing relevance for both practice and academic research in fields of economics, management and information systems management, to name just a few. The reason being that the proliferation of the internet has reached nearly every corner of the world (Roser et al 2015) and is touching and forming an increasing number of areas relevant to work and life in general. Social Media platforms have developed from means to connect to old and new friends, to sources of news, organizing online and offline gatherings and conducting commerce. Special interest groups, from programming to brand enthusiasts, have moved from communicating and exchanging knowledge via listserves and e-mails, to creating and sharing everything from software code [@Fjeldstad.2012;  @vonKrogh.2003; @vonKrogh.2012] to designs for physical objects [@Stanko.2016; @Jensen.2014] via dedicated virtual spaces hosted online. As it is reasonable to assume that the trend of interacting and communicating with each other virtually and unimpeded by physical borders or geographical distance won't be declining in the foreseeable future, it is essential to understand the behavior of individuals as well as groups in this relatively new environment.
 
-First off, there are a number of different uses and definitions of the term online community, as well as different names for similar concepts, depending on the discipline or research question of interest. The research herein is concerned with the behavior of members creating and sharing knowledge within online communities seen as a new form of organization (@Puranam.2014).  They are broadly defined as virtual space of communication among members facilitated by ICT technology (Source), have a shared goal, mission or interests that can be centered around a particular product or an entire subject area (Source), which have porous or open organizational boundaries allowing for self selection in and out() and whose primary goal is to foster the collaborative and cummulative creation and sharing of information and knoweldge (Source). Hence, the context of relevance is distinct from social media platforms like Twitter and Facebook, that are means of connecting and sharing information with a (relatively) closed group of friends and acquaintances, as well as from temporary forms of organizing like crowd sourcing contests. 
+First off, there are a number of different uses and definitions of the term online community, as well as different names for similar concepts, depending on the discipline or research question of interest. The research herein is concerned with the behavior of members creating and sharing knowledge within online communities seen as a new form of organization [@Puranam.2014].  They are broadly defined as virtual space of communication among members facilitated by ICT technology [@Faraj.2016; @Wasko.2009], members have a shared goal, mission or interests that can be centered around a particular product or an entire subject area [@Faraj.2016; @Ma.2007] , and the communities have porous or open organizational boundaries allowing for self selection in and out [@Faraj.2016], the primary goal of which is to foster the collaborative and cumulative creation and sharing of information and knoweldge [@Ray.2014]. Hence, the context of relevance is distinct from social media platforms like Twitter and Facebook, that are means of connecting and sharing information with a (relatively) closed group of friends and acquaintances [@Ray.2014], as well as from temporary forms of organizing like crowd sourcing contests (Nagle 2020). 
 
-Research in the area of online communities as defined above, has provided insight into, among other things, the design (Source), evolution (Source), outputs (Stanko) and governance (Lerner and Tirole source) of these new forms of organising. Regarding the latter aspect, one of the key questions that arises is how to steer the behavior of members in online communities, as online communities thrive and decline with the engagement of their members (Source - Oh and Jeon, Ma and Agrawal? Lappas?). This challenge is especially pressient for online communities, as contribution behavior in online commmunities is highly right skewed, i.e. a very small number of highly active and intrinsically motivated members is responsible for the majority of contributions in online communities (Source). Hence, the question of how to incentivize increased activity by a larger portion of participant is a natural consequence (Lurking sources). As opposed to closed forms of organising, where effort can be induced by monetary compensation and hierarchy, online communities' characteristics, like their potential unlimited size and fluid membership of participants (Source), make monetary incentives and hierarchical control less of a viable option. A steering mechanism that is commonly found in many online communities are symbolic awards in the form of virtual badges, medals, ranks, points etc (Source). 
+Research in the area of online communities as defined above, has provided insight into, among other things, the design [@Fjeldstad.2012], evolution [@Puranam.2014; @Faraj.2016] , outputs [@Stanko.2016] and governance [@Lerner.2002; @vonKrogh.2012] of these new forms of organizing. Regarding the latter aspect, one of the key questions that arises is how to steer the behavior of members in online communities, as online communities thrive and decline with the engagement of their members [@Oh.2007; @Ma.2007; @Lappas.20170216]. This challenge is especially prescient for online communities, as contribution behavior in online communities is highly right skewed, i.e. a very small number of highly active and intrinsically motivated members is responsible for the majority of contributions in online communities [@David.2008; @vanMierlo.2014]. Hence, the question of how to incentivize increased activity by a larger portion of participant is a natural consequence [@Sun.2014; @Yeow.2006]. As opposed to closed forms of organising, where effort can be induced by monetary compensation and hierarchy, online communities' characteristics, like their potential unlimited size and fluid membership of participants [@Faraj.2016], make monetary incentives and hierarchical control less of a viable option. Nonetheless, a steering mechanism that is commonly found in many online communities are symbolic awards in the form of virtual badges, medals, ranks, points etc [@Kraut.20122011; @Liu.2017]. 
 
-Studies in this area of inquiry have investigated the impact of symbolic awards in online communities in the past. Therein it was found that the prospect of receiving rewards lead to postivie effects in terms of contribution behavior in the short (Park?) and long term (Source?), as well as mixed findings when investigating different types of members within communities (Goes?) or when investigating the distribution of activity types (Anderson). In addition, the reception of symbolic awards was found to lead to a decrease in activity levels when these awards were awarded conditional on fulfilling predetermined criteria (Goes?, Anderson?), while leading to sustained increase in knoweldge contributions when receiving the award was unexpected (Gallus). .. #More insights necessary.
-What remains largely unkown however is how the introduction of a symbolic rewards impacts the contribution behavior of members within online community. This is of theoretical interest, as it would help understand how members of an organization react when previously non-incentivized activities are explicitely, symbolically rewarded. This would provide novel and relevant insights compared to previous studies, which have mainly focused on contexts where rewards for certain behaviors were already established and may have influenced the make-up of the community via self selecting in or out of the community by members based on the governance mechanisms. Furthermore, it would provide insight into a key organising challenge within new forms of organising as proposed by Puranam et al (2015), by ... (From a pervious abstract).
+Studies in this area of inquiry have investigated the impact of symbolic awards in online communities in the past. Therein it was found that the prospect of receiving rewards lead to positive effects in terms of contribution behavior in the short [Gutt.2018; @Park.2015] and long term [@Gallus.2017b], as well as mixed findings when investigating different types of members within communities [@Goes.2016] or when investigating the distribution of activity types [@Anderson.2013]. In addition, the reception of symbolic awards was found to lead to a decrease in activity levels when these awards were awarded conditional on fulfilling predetermined criteria [@Goes.2016] - so called conditional or confirmatory symbolic awards [@Frey.2017]. What remains largely unknown however, is how the introduction of a symbolic award impacts the contribution behavior of members within online community. This is of theoretical interest, as it would help understand how members of organizations react when previously non-incentivized activities are explicitly, symbolically rewarded. This would provide novel and relevant insights compared to previous studies, which have mainly focused on contexts where rewards for certain behaviors were already established and may have influenced the make-up of the community via self selecting in or out of the community by members based on the governance mechanisms. Furthermore, it would provide insight into a key organising challenge within new forms of organising as proposed by Puranam et al (2015), by investigating how changes in reward provisions affects the allocation of (human) resources to tasks in an OC.
 
-The goal of this statistical report is to investigate the effect that the introduction of conditional symbolic awards has on the knowledge contributions that users produce in response to questions posed by other users. Knowledge sharing in the form of answers is a common form of communication in online communities, some of the notable context examples which were the subject of scientific inquiry in the past include Sourceforge (Source), Quora, StackOverflow (Source) or Yahoo Answers (Source). Answering questions of fellow members requires at least some degree of time and effort commited by the answerer, without incurring any immedate or measurable benefit, while the question poser is rewarded with a potential solution for a problem. Reasons for users providing this effort have been connected to intrinsical motivation like the joy of problem solving or learning (source), as well as extrinsic benefits like reputational gain (Source) or deferred career benefits (Source). While it has been shown that the prospect of receiving a reward, even when it is intangible and non-monetary, can increase the effort provided by members (Source), there is reason to assume that the availbility of such rewards may reduce the contributions on average. Extrinsic incentives have been shown to lead to a decrease of intrinsic motivation among prospective as well as actual recipients in a number of settings (Source). This is especially salient when the goals to achieve set out by such conditional awards are lower than the orinal effort level by certain individuals, leading to a "moral licensing" or "done enough" effect (Source). Furthermore, it has been found that while such conditional awards can temporarily lead to a surge in rewarded activity, the levels tend to drop off after they receive the reward. Investigating this question within online communities will be of paritcular interest, as outlined above, contributions to these communities tend to be driven by a small group of committed members, who studies found to be largely intrinsically motivated (Von krogh source etc). Thus, this leads to the following hypothesis:
-- The introduction of symbolic awards rewarding the fulfilment of predetermined criteria (conditional symbolic awards) will lead to a decline of the average answers provided by existing members of a community
+The goal of this statistical report is to investigate the effect that the introduction of conditional symbolic awards has on the knowledge contributions that users produce in response to questions posed by other users. Knowledge sharing in the form of answers is a common form of communication in online communities. Some of the notable context examples which were the subject of scientific inquiry in the past include Sourceforge [@David.2008], StackOverflow [@Anderson.2013] or Google Answers [@Chen.2010]. Answering questions of fellow members requires at least some degree of time and effort commited by the answerer, without incurring any immedate or measurable benefit, while the question poser is rewarded with a potential solution for a problem. Reasons for users providing this effort have been connected to intrinsical motivation like the joy of problem solving or learning [@Wasko.2005], as well as extrinsic benefits like reputational gain [@Jeppesen.2006; @Wasko.2005] or deferred career benefits [@Lerner.2002]. While it has been shown that the prospect of receiving a reward, even when it is intangible and non-monetary, can increase the effort provided by members, there is reason to assume that the availbility of such rewards may reduce the contributions on average. Extrinsic incentives have been shown to lead to a decrease of intrinsic motivation among prospective as well as actual recipients in some settings. This is especially salient when the goals to achieve set out by such conditional awards are lower than the orinal effort level by certain individuals, leading to a "moral licensing" or "done enough" effect [@Gneezy.2011; @Robinson.2018]. Furthermore, it has been found that while such conditional awards can temporarily lead to a surge in rewarded activity, the levels tend to drop off after they receive the reward [@Goes.2016]. Investigating this question within online communities will be of paritcular interest, as outlined above, contributions to these communities tend to be driven by a small group of committed members, who studies found to be largely intrinsically motivated [@vonKrogh.2012]. Thus, this leads to the following hypothesis:
+
+
+- The introduction of conditional symbolic awards will lead to a decline of the average answers provided by existing members of a community
  
  
-In order to answer the research question of relevance, a natural experiment is exploited, in which a set of symbolic awards in the form of virtual badges was introduced into an online community focused on sharing knowledge and solving problems in the field of electrical engineering, was introduced on the 13th of April 2015. A difference in difference design is adopted, employing panel data on the user week-leve across 6 months before and after the introduction. The StackExchange Electrical Engineering online community was identified as a sufficently similar control community, which did not witness any change in their reward system during the time of relevance. Procedures like coding of individual members by individuals external to the research team, focusing on registered users and propensity score matching are employed to strengthen the identification strategy. 
+In order to answer the research question of relevance, a natural experiment is exploited, in which a set of symbolic awards in the form of virtual badges was introduced into an online community focused on sharing knowledge and solving problems in the field of electrical engineering, on the 13th of April 2015. A difference in difference design is adopted, employing panel data on the user week-leve across 6 months before and after the introduction. The StackExchange Electrical Engineering online community was identified as a sufficently similar control community, which did not witness any change in their reward system during the time of relevance. Procedures like coding of individual members by individuals external to the research team, focusing on registered users and propensity score matching are employed to strengthen the identification strategy. 
 
 # Data collection
 
@@ -72,18 +72,18 @@ load("C:/R work/Advanced data analytics with R/Statistical Report/data/qual_pre_
 load("C:/R work/Advanced data analytics with R/Statistical Report/data/crosssec_both_match.Rda")
 ```
 
-To conduct this research, digital trace data was collected on the treatment and control community in two different ways. While Stackoverflow generously provides data dumps of every sub community, of which the electrical engineering community is one, data on the treatment community had to be scraped. A research assistant was tasked with writing the scraping program in order to get access, which was audited by the research team. For both communities, data was gathered on the post level, and then aggregated to the user-week level in order to provide the necessary analyses for this study. 
+To conduct this research, digital trace data was collected on the treatment and control community in two different ways. While Stackoverflow generously provides data dumps of every sub community, of which the electrical engineering community is one, data on the treatment community had to be scraped. A research assistant was tasked with writing the scraping program in order to get access, which was audited by the research team. For both communities, data was gathered on the post level, and then aggregated to the user-week level in order to conduct the analyses for this study. 
 
-The control community was identified as relevant for a difference in difference study due to a number of factors. First of all, descriptions of the two communities were inspected by the researchers, which allowed the team to conclude that the topical focus of the two matched. While it has to be mentioned, that the main difference between the two communities is that the treatment community is owned and operated by a commercial parent company, the researchers observed that the parent company does not excert control over content and interactions in the community. This conclusion was coroborated by annecdotal evidence from the community manager. Secondly, tags used in posts made in each community were compared to assess whether there are large topical differences in the main topics that are discussed, which could be disconfirmed. Finally, the analysis is focused on the Q&A portion of the treatment community, which closely mirrors the mode of information exchange on StackOverflow.
+The control community was identified as relevant for a difference in difference study due to a number of factors. First of all, descriptions of the two communities were inspected by the researchers, which allowed the team to conclude that the topical focus of the two matched. While it has to be mentioned that the main difference between the two communities is that the treatment community is owned and operated by a commercial parent company, the researchers observed that the parent company does not excert control over content and interactions in the community. This conclusion was coroborated by annecdotal evidence from the community manager. Secondly, tags used in posts made in each community were compared to assess whether there are large topical differences in the main topics that are discussed, which could be disconfirmed. Finally, the analysis is focused on the Q&A portion of the treatment community, which closely mirrors the mode of information exchange on StackOverflow.
 
 To investigate the research question of how the introduction of symbolic awards impacts the contribution behavior of members, we set the time period of relevance to 6 months before and after the time of the introduction (the shock). We were able to isolate the introduction of the shock to the 13th of April 2015 due to a blog post published in the treated community. We also received annecdotal evidence from the community manager that the members of the commmunity were not aware of the impending change to the reward system, giving us confidence that we can rule out any potential anticipatory effect. At the same time the blog post itself was published by the community manager and received a considerable amount of views and comments, in addition to these new badges being added to a section of every members profile. 6 months around the time of introduction was chosen as a suitable time frame as it allowed enough time for users to get acquainted with the new rewards, while not too much time so as to risk other factors influencing our results. 
 
 As mentioned briefly above, the sample being analyzed consists of users that were registered before the introduction of the symbolic awards and observations were aggregated to the user week level. We incldued only registered users as the focus of this study is on the behavioral changes of existing users of the community. We aggregated the panel data to a weekly level as this was the lowest possible frequency which allowed for measurable variation on the user level, given that a large portion of community members participate very infrequently. All in all, the sample includes 913 individual users in the treatment group and 2536 users in the control group across the period of relevance. After balancing the panel, each user has 48 observations, leading to a panel data set of 165.588 user-week observations, 9.995 of which are non-0 observations.  
-```{r, message = F}
+```{r, message = F, eval=F}
 #number of users in the treated group
-w_panel_did_qual_as_regUs_6m_b %>% filter(group==1) %>% group_by(user_ID) %>% dplyr::summarize(actions = n()) %>% glimpse()
+w_panel_did_qual_as_regUs_6m_b %>% filter(group==1) %>% group_by(user_ID) %>% dplyr::summarize(actions = n()) %>% table() %>% length()
 #number of users in the control group
-w_panel_did_qual_as_regUs_6m_b %>% filter(group==0) %>% group_by(user_ID) %>% dplyr::summarize(actions = n()) %>% glimpse()
+w_panel_did_qual_as_regUs_6m_b %>% filter(group==0) %>% group_by(user_ID) %>% dplyr::summarize(actions = n())  %>% glimpse()
 ```
 Variables that are included in the panel data set that are relevant for the analysis within this statistical report include:
 
@@ -94,13 +94,13 @@ Variables that are included in the panel data set that are relevant for the anal
 * actions: the number of answers provided by a user in a week, which is the dependent variable of interest
 * questions_per_week: a control variable indicating the amount of questions provided to the community in a given week, to control for any increase or decrease in answering behavior due to a increase or decrease in the supply of questions. 
 
-There are no NA values present in the panel data as for the amount of answers variable, NAs were coerced into 0 after balancing.
+There are no NA values present in the panel data, as for the "actions" variable, NAs were coerced into 0 after balancing.
 
-A large portion of the data cleaning process was left out of this statistical report, as the data provided had to undergo a lot of preporsseing. A number of users were excluded from the panel data set based on coding by 3 research assistants, that filtered out users which were community moderators or employees and accounts that appeared to be purely of commercial purpose (linking to their own products or websites in every answer) - approximately 1.5% of users. Answers had to be coded as such, as in the treatment community individuals were able to comment on various kinds of content beyond questions, while in the control community, questions where the only form of original content contributions that illicted answers. Furthermore, a large amount of registered users in the treatment community had to be filtered out, as there seemed to have been a disproportionate amount of sudden registrations several years before the introduction of the symbolic awards that never actively contributed (approximately 150.000 within a week). The aggregation of the data to the user-week level was intentionally left out as well as the week variables and treatment variable had to be added to both community data sets. What will be shown in the following section is the propensity score matching procedure, conducted in order to aid in the identification of causal effects by making the treatment and control group more comparable. 
+A large portion of the data cleaning process was left out of this statistical report, as the data provided had to undergo a lot of preporsseing. A number of users were excluded from the panel data set based on coding by 3 research assistants, that filtered out users which were community moderators or employees and accounts that appeared to be purely of commercial purpose (linking to their own products or websites in every answer) - amounting to the exclusion of approximately 1.5% of users. Answers had to be coded as such, as in the treatment community individuals were able to comment on various kinds of content beyond questions, while in the control community, questions where the only form of original content contributions that illicted answers. Furthermore, a large amount of registered users in the treatment community had to be filtered out, as there seemed to have been a disproportionate amount of sudden registrations several years before the introduction of the symbolic awards that never actively contributed (approximately 150.000 within a week). The aggregation of the data to the user-week level was intentionally left out as well as the week variables and treatment variable had to be added to both community data sets. What will be shown in the following section is the propensity score matching procedure, conducted in order to aid in the identification of causal effects by making the treatment and control group more comparable. 
 
 # Descriptive Analysis of the Sample
 
-Within this section of the statistical report, an overview of the descriptive statistics will be provided for the dataset before and after the matching procedure. As the matching procedure is undertaken on the crosssectional level, including only observations before the shock, descritpive statistics of the matching variables are also provided. 2 different panel data sets will be used in the analysis portion of this report in addition to the unmatched panel data set
+Within this section of the statistical report, an overview of the descriptive statistics will be provided for the dataset before and after the matching procedure. As the matching procedure is undertaken on the crosssectional level, including only observations before the shock, descritpive statistics of the matching variables are also provided. 
 
 ### Descriptive statistics unmatched
 
@@ -152,9 +152,10 @@ Below are tables of the descriptive statiscs before and after the introduction o
             summary.stat = c("n","mean","sd", "min","max", "median"))
 ```
 
+
 ### Graphical Representation of the Dependent Variable
 
-Investigating the dependent variable graphically shows that there is a very large representation of 0s in the dataset, which makes it hard to compare the treated and control community visually
+Investigating the dependent variable graphically shows that there is a very large representation of 0s in the dataset, which makes it hard to compare the treated and control community visually. Below, the plot column heading "post_treatment" refers to the 6 month time period before the introduction of awards (0) or after (1). The plot row heading "group" refers to either the control (0) or treatmed (1) group. 
 
 ```{r}
 #densuty plot of the two groups answering behavior, before and after the treatment
@@ -202,9 +203,9 @@ The preparation of the data used to conduct the propensity was done outside of t
 *   number of answers made by a user 2 years before the incentive introduction
 *   number of answers made by a user 3 years before the incentive introduction
 
-These variables are a subset of variables chosen to base the propensity score matching on. The original set of variables were chosen based on whether they may influence selection into treatment as well as based on the data that was available for users of both communities. The variables that were dropped in favor of the final subset included the number of questions made between registration and time of introduction, number of views that an original post received and number of words of original posts, as well as 3 year lags of all of the above. These variables were dropped as they did not provide any improvement in the model fit when regressing the treatment variable on combinations of variables which included the aforementioned. The analysis of the different models is left out of this report for conciseness reasons. Given the right skewedness in the distribution of many of the variables, matching models were calculated with the above variables in unaltered form, as well as after creating quantiles for each of the variables. The reason for matching on quantiles is due to the fact that nearest neighbor matching may not be very precise when observations of the treated group that lie at the extremes of the variable distributions lead to a very high propensity score, which may not be achieved by any observation in the control treatment (this effect is observed to a small degree and illustrated in the matching procedures that follow)  The quantiles vary in level given the fact that there are large differences in the distributions of the variable. For example, only 2 levels were able to be created from the "answers 3 years before the treatment introduction" variable, as the vast majority of users were not active 3 years before the shock. Similarly, the "original posts" variable only has 2 levels for the same reason, that most members did not produce any original content, while a small number preferred original contributions over providing answers to other user's contributions. A version with standardized variables was also calculated, which did not provide any significant improvement in the fit of the model. Below, the fit of the 2 final models, chosen based on the lowest AIC, regressing the treatment dummy on both the quantiled as well as unaltered variables is presented
+These variables are a subset of variables chosen to base the propensity score matching on. The original set of variables were chosen based on whether they may influence selection into treatment as well as based on the data that was available for users of both communities. The variables that were dropped in favor of the final subset included the number of questions made between registration and time of introduction, number of views that an original post received and number of words of original posts, as well as 3 year lags of all of the above. These variables were dropped as they did not provide any improvement in terms of the model fit when regressing the treatment variable on combinations of variables which included the aforementioned. The analysis of the different models is left out of this report for conciseness reasons. Given the right skewedness in the distribution of many of the variables, matching models were calculated with the above variables in unaltered form, as well as after creating quantiles for each of the variables. The reason for matching on quantiles is due to the fact that nearest neighbor matching may not be very precise when observations of the treated group that lie at the extremes of the variable distributions lead to a very high propensity score, which may not be achieved by any observation in the control treatment (this effect is observed to a small degree and illustrated in the matching procedures that follow)  The quantiles vary in level given the fact that there are large differences in the distributions of the variable. For example, only 2 levels were able to be created from the "answers 3 years before the treatment introduction" variable, as the vast majority of users were not active 3 years before the shock. Similarly, the "original posts" variable only has 2 levels for the same reason, that most members did not produce any original content, while a small number preferred original contributions over providing answers to other user's contributions. A version with standardized variables was also calculated, which did not provide any significant improvement in the fit of the model. Below, the fit of the 2 final models, chosen based on the lowest AIC, regressing the treatment dummy on both the quantiled as well as unaltered variables, is presented
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE}
 #quantile propensity score calculations
 m_ps_qs_2 <- glm(t_groups ~ d_since_reg_qs_2 + 
                    orig_posts_qs_2 +
@@ -214,6 +215,9 @@ m_ps_qs_2 <- glm(t_groups ~ d_since_reg_qs_2 +
                    answers_t_2_qs_2 +
                    answers_t_3_qs_2,
                  family = binomial(), data = crosssec_both_match)
+
+
+
 
 #unaltered propensity score calculations
 m_ps_unalt_1 <- glm(t_groups ~  d_since_reg +
@@ -225,14 +229,17 @@ m_ps_unalt_1 <- glm(t_groups ~  d_since_reg +
                       answers_t_3, family = binomial(), data = crosssec_both_match)
 
 summary(m_ps_qs_2)
+```
+In the quantiled version of the variables above, in which each quantile is treated as a factor, the "total number of answers" variable was highly significant in predicting whether a user resembled belonging to the treated community. The negative coefficient shows that user in the untreated community tend to contribute more answers than users in the treated community. Words per answer on the other hand was a weak predictor for wether a user was resembled being part of the treated community, implying that the number of words per answer is relatively similar for users in either community.
+```{r, warning = F}
 summary(m_ps_unalt_1)
 ```
 
-In the quantiled version of the variables, in which each quantile is treated as a factor, total number of answers variable was highly significant in predicting whether a user resembled belonging to the treated community. The negative coefficient shows that user in the untreated community tend to contribute more answers than users in the treated community. Words per answer on the other hand was a weak predictor for wether a user was resembled being part of the treated community, implying that the number of words per answer is relatively similar for users in either community. Looking at the coefficients of the model including the variables in continuous (unaltered) form, every variable is significant at least at the 90% confidence level. 
+Looking at the coefficients of the model above, including the variables in continuous (unaltered) form, every variable is significant at least at the 90% confidence level. 
 
 For the matching procedure, a number of different options are available, including nearest neighbor optimal, nearest neighbor ordered and coarsened exact matching just to name a few. Similar to the case above, the selection process was based on running various matching procedures with different combinations of variables, in unaltered, qunatiled and standardized form. Once again, only the final matching procedures are presented in this report, which are ordered nearest neighbor matching with the combination of variables as presented above, in unaltered and quantiled form. Here, ordered refers to the fact that the observations were sorted in descending order according to their propensity scores, which were predicted using the regression models from above. 
 
-What follows is the ordered nearest neighbor matching procedure using the variables in their unaltered, continuous form
+What follows is the ordered nearest neighbor matching procedure using the variables in their unaltered, continuous form. The information presented below gives an exhaustive overview of the descriptive statistics for every variable included in the matching procedure before and after matching as well as the balance improvement (or decrease) after matching . 
 
 ```{r, warning=FALSE, message=FALSE}
 ##execute NN matching ordered for un-quantiled, un-scaled with best fitting model
@@ -294,7 +301,7 @@ plot(NN_match_qs_ord, type = "hist")
 
 Visually on the other hand, the balance improvement after matching is promising when inspecting the propensity scores. As before, a large number of control group observations with low propensity scores were purged from the dataset, while at the same time the high propensity score observations of the treatment group could be matched more closely with control group observations compared to the matching based on the unaltered, continuous variables. Comparing the histograms in the second graphic also illustrates the considerable improvements in balance of the two groups due to the matching procedure
 
-### descriptives - panel data including only matched observations
+### Descriptives - panel data including only matched observations
 
 Following the comparison of the propensity scores before and after matching for the control and treated group, it makes sense to inspect whether this improvement in balance translates into improved balance in the descriptive statistics, at least before the introduction of the treatment. Below an overview of the descriptive statistics for the panel data based on the matching procedure with the unaltered, continuous variables is provided. Given the visual inspection was not particularly helpful due to the large right skew of the dependent variable, only the descriptive statistics tables are provided
 
@@ -410,7 +417,8 @@ w_panel_matched_qual_6m_qs_b <- w_panel_did_qual_as_regUs_6m_b %>% filter(user_I
             summary.stat = c("n","mean","sd", "min","max", "median"))
 ```
 
-As can be seen above, the mean as well as standard deviation of the dependent variable increased compared to before the matching procedure in the control group, both before and after incentive introduction. This may mean that the matching procedure made the two groups less comparable, or that there are substantial differences in levels of answering activity within the control group. This suggests that indivdiual fixed effects may need to be included in the difference in difference analysis using the panel data including observations from the matching procedure using quantiles. 
+
+As can be seen above, the mean as well as standard deviation of the dependent variable increased compared to before the matching procedure in the control group, both before and after incentive introduction. This may mean that the matching procedure made the two groups less comparable, or that there are substantial differences in levels of answering activity within the control group. This suggests that individual fixed effects may need to be included in the difference in difference analysis when using the panel data including observations from the matching procedure based on quantiles. In the remainder of this statistical report, the performance analysis will be based on the sample created from the matching procedure with unaltered data (i.e. not quantiled). The reason being that although the intention of creating quantiles of the variables was well intentioned, the distributions of the matching variables didn't allow for the creation of the same number of quantiles across all variables (e.g. for the variable "answers 3 years before the shock"). This was deemed as too hard to justify theoretically.
 
 What follows in the next section will be the analysis of how the introduction of symbolic awards affects the answering behavior of members within online communities. The matching procedures illustrated above, in addition to the pre-processing of the raw data, provide further arguments for the identification of a generalizable causal effect. 
 
@@ -418,8 +426,13 @@ What follows in the next section will be the analysis of how the introduction of
 
 # Analysis
 
-### hypotheses that will be tested
+### Hypothesis to test
 
+To test the hypothesis of this research, that the introduction of symbolic awards has a negative effect on the answering behavior of members, a difference in difference design is employed, which translates into the following regression equation:
+
+$$ answers_{it} = \delta_{1}treatment_{t} + \delta_{2}group_{i} + \delta_{3}(group_{i}*treatment_{t}) + \beta_{1}questions_{t} + \alpha_{t} + \gamma_{i} + \epsilon_{i} $$
+
+in this equation, the coefficient of interest is $\delta_{3}$ which represents the difference in difference coefficient, i.e. the treatement effect on the treated. Given assumptions on parallel pretrends hold, this coefficient should give an estimate for the change in average weekly answering behavior of users after the introduction of badges. Questions per week are included as a control variable, to control for any changes in answering behavior that may be driven by the availability of questions during a specific time period. In the above full equation, individual and time fixed effects as well as errors clustered on the individual level are used, represented by $\alpha_{t}$, $\gamma_{i}$ and $\epsilon_{i}$ respectively. Errors are clustered on the individual level, as there is grounds to believe that errors may be correlated over time by individual. 
 
 ### Pre-assessment of dependent variable distribution
 
@@ -428,6 +441,7 @@ Given the non-negative integer values the dependent variable takes on, and takin
 ```{r, warning=F}
 dv <- w_panel_matched_qual_6m_unalt_b$actions
 
+par(mfrow = c(3, 1))
 #show ord plot
 Ord_plot(dv)
 
@@ -437,6 +451,8 @@ distplot(dv, type = "poisson")
 #the "xxxxxness" plot, using nbin
 distplot(dv, type = "nbinom")
 
+par(mfrow = c(1, 1))
+
 #the goodfit function poisson
 summary(goodfit(dv))
 
@@ -445,17 +461,11 @@ summary(goodfit(dv, type = "nbinom"))
 
 ```
 
-The above plots give a summary of the distribution of the depenedent variable to assess which model is the best choice given the distribution. The Ord Plot, which plots the number of occurrences against a frequency ratio, suggest that a logarithmic series might fit the DV distribution best. However the ord plot is sensitive to single outlier values, which is why dist plots provide better indications for which distribution the variable may follow (see Friendly, 2000). Checking these plots as well as the likelihood provided for both the poisson and negative binomial, it is more likely that the variable follows a negative binomial distribution. 
+The above plots give a summary of the distribution of the depenedent variable to assess which model is the best choice given the distribution. The Ord Plot, which plots the number of occurrences against a frequency ratio, suggest that a logarithmic series might fit the DV distribution best. However the ord plot is sensitive to single outlier values, which is why dist plots provide better indications for which distribution the variable may follow (see Friendly, 2000). Checking these plots as well as the likelihood provided for both the poisson and negative binomial in the "goodness-of-fit" test, it is more likely that the answer variable follows a negative binomial distribution. 
 
 ### Model building and testing
 
-To test the hypothesis of this research, that the introduction of symbolic awards has a negative effect on the asnwering behavior of members, a difference in difference design is employed, which translates into the following regression equation:
-
-$$ answers_{it} = \delta_{1}treatment_{t} + \delta_{2}group_{i} + \delta_{3}(group_{i}*treatment_{t}) + \beta_{1}questions_{t} + \alpha_{t} + \gamma_{i} + \epsilon_{i} $$
-
-in this equation, the coefficient of interest is $\delta_{3}$ which represents the difference in difference coefficient, i.e. the treatement effect on the treated. Given assumptions on parallel pretrends hold, this coefficient should give an estimate for the change in average weekly answering behavior of users after the introduction of badges. Questions per week are included as a control variable, to control for any changes in answering behavior that may be driven by the availability of questions during a specific time period. In the above full equation, individual and time fixed effects as well as errors clustered on the individual level, represented by $\alpha_{t}$, $\gamma_{i}$ and $\epsilon_{i}$ respectively. Errors are clustered on the individual level, as there is grounds to believe that errors may be correlated over time by individual. 
-
-Below, a number of different regression specifications are calculated. OLS regressions are shown as baseline models, with and without fixed effects. The reason why both are shown is, that the inclusion of individual fixed effects makes intuitive sense to control for any difference in levels between member's answering behavior in the two communities. However, including them also leads to the exclusion of individuals that that don't show any variance in their answering behavior in either the pre-treatment or post-treatment period. A large number of users in the sample only are active once, and some member are active multiple times but only in one of the two periods. Hence, the sample size is reduced considerably when including these individual fixed effects, effectively leading to the diff-in-diff coefficient to measure the change in answering behavior of members that portray an above average activity level. 
+Below, a number of different regression specifications are calculated for the main equation shown above. OLS regressions are shown as baseline models, with and without fixed effects. The reason why both are shown is, that the inclusion of individual fixed effects makes intuitive sense in order to control for any difference in levels between member's answering behavior in the two communities. However, including them also leads to the exclusion of individuals that that don't show any variance in their answering behavior in either the pre-treatment or post-treatment period. A large number of users in the sample only are active once, and some member are active multiple times but only in one of the two periods. Hence, the sample size is reduced considerably when including these individual fixed effects, effectively leading to the diff-in-diff coefficient measuring only the change in answering behavior of members that portray an above average activity level. 
 
 Poisson and Negative binomial models, which are more suitable given the distributional properties of the dv of interest, are shown with and without fixed effects as well. Finally, the results of hurdle models are shown, which in principle should be able to deal with the 0-inflation issue better than regular count models. A hurdle model is chosen as appropriate vs a zero inflated model as all the observations are "at risk" of producing an answer, hence 0s are assumed to have arisen due to sampling only and not due to structural reasons (Rose et al 2006). 
 
@@ -487,7 +497,7 @@ ols_logged_fullFEs_matched_unalt_asw_6m <- felm(log(actions + 1) ~  did_coeff + 
 # poisson - without fixed effects
 pois_matched_unalt_asw_6m <- glm(actions ~ group*post_treatment + questions_per_week, family = poisson, data = w_panel_matched_qual_6m_unalt_b)
 # negative binomial - without fixed effects
-(theta_matched <- glm.nb(actions ~ group*post_treatment + questions_per_week, data = w_panel_matched_qual_6m_unalt_b)$theta) 
+theta_matched <- glm.nb(actions ~ group*post_treatment + questions_per_week, data = w_panel_matched_qual_6m_unalt_b)$theta
 negbi_matched_unalt_asw_6m <- update(pois_matched_unalt_asw_6m, family = negative.binomial(theta_matched))
 # poisson hurdle - without fixed effects
 pois_h_matched_unalt_asw_6m <- hurdle(actions ~ group*post_treatment + questions_per_week, data = w_panel_matched_qual_6m_unalt_b)
@@ -504,7 +514,8 @@ pois_h_matched_unalt_FEs_asw_6m <- pscl::hurdle(actions ~ did_coeff + questions_
 negbi_h_matched_unalt_FEs_asw_6m <- pscl::hurdle(actions ~ did_coeff + questions_per_week + as.factor(t_shock_w), data = w_panel_matched_qual_6m_unalt_b, dist = "negbin")
 
 etable(pois_matched_unalt_FEs_asw_6m,
-          negbi_matched_unalt_FEs_asw_6m_1)
+          negbi_matched_unalt_FEs_asw_6m_1,
+       title= "hurdle models, Poisson and Negative Binomial specification")
 ```
 
 ```{r, results= 'asis'}
@@ -523,16 +534,16 @@ stargazer(ols_matched_unalt_asw_6m,
 
 
 
-When inspecting the models above, all but the hurdle models show a clear and significant decrease in the average answering behavior based on inspection of the interaction term, i.e. the diff-in-diff coefficient (for the model with the logged dv including fixed effects, the variable "did_coeff" is of relevance, which was constructed by multiplying the group with the post treatment variable. This was done as the package used to calculate the fixed effects models didn't run when collinear terms were included). As expected, the explanatory power of the OLS models without fixed effects is very low, based on the adjusted R2, which increases signficantly when fixed effects are included. 
+When inspecting the models above, all but the hurdle models (the first set of tables - Model 1 shows results of the poisson hurdle specification, Model 2 shows results of the negative binomial hurdle specification) show a clear and significant decrease in the average answering behavior based on inspection of the interaction term , i.e. the diff-in-diff coefficient (for the model with the logged dv including fixed effects as well as the negative binomial hurdle model, the variable "did_coeff" is of relevance, which was constructed by multiplying the group with the post treatment variable. This was done as the package used to calculate the fixed effects models didn't run when collinear terms were included). As expected, the explanatory power of the OLS models without fixed effects is very low, based on the adjusted R2, which increases signficantly when fixed effects are included. 
 
-Looking at the hurdle model results, which show an increase in average answering behavior, the most interesting element is not the coefficient of the count model, but of the zero/one binomial model. Interpreting the interaction term here, that the likelihood of not providing any answers (i.e. being excluded from the count model) increases dramatically after introduction of the incentives. 
+Looking at the hurdle model results, which show an increase in average answering behavior, the most interesting element is not the coefficient of the count model, but of the zero/one binomial part of the model, as presented below. Interpreting the interaction term here, it can be seen that the likelihood of not providing any answers (i.e. being excluded from the count model) increases dramatically after introduction of the incentives. 
 ```{r}
 hurdle_summary <- summary(pois_h_matched_unalt_asw_6m)
 
 hurdle_summary$coefficients$zero
 ```
 
-The coefficients of the count regression are a little harder to interpret, as it wasn't possible to specify time and individual fixed effects, thus inclusion or exclusion of observations was not made based on the user level, leading to a mean comparison of the two groups across two time periods, not accounting for user level panel dynamics. 
+The coefficients of the count regression part of the hurdle model are a little harder to interpret, as it wasn't possible to specify time and individual fixed effects, thus inclusion or exclusion of observations was not made based on the user level, leading to a mean comparison of the two groups across two time periods, not accounting for user level panel dynamics. 
 
 It also has to be noted that the discrepancy between the coefficients in the OLS with logged DV models vs count models is driven in large part by the constant that is added to the dv in order to address the existance of 0s. When adding smaller constants than 1, the coefficient approximates the coefficient in the count models. 
 
@@ -557,34 +568,36 @@ summary(negbi_matched_unalt_FEs_asw_6m_1)
 ```
 
 
-From the model comparison above, looking at AIC & BIC values, a few observations can be made. First and foremost, the interpretation of the AIC/BIC/LR values across models with different underlying model distributions is only possible if no terms are dropped in the maximized likelihood estimation (Burnham and Anderson, 2002) - which the researcher cannot not assess given the various R packages used to estimate the models which may differ in the way the fit parameters are calculated.  Furthermore, comparisons across models with different sample sizes does not provide any meaningful information, as the maximized -2log-likelihood can vary widely with sample size (Burnham and Anderson, 2002). This will be an issue when comparing models with and without individual fixed effects, as observations without variance in either the pre or post treatment period (i.e. no answering activity) are dropped from the sample.  
-Looking at the AIC of the different models under above limitations, the OLS model with the logged DV and FE included has the lowest AIC. As mentioned above, this is most likely driven by the fact that the sample size is reduced by dropping observations without enough variation over time. However, when comparing the count regression models (Poisson and Negative Binomial) with and without fixed effects included, the same Looking at the hurdle models, the AIC is lower compared to corresponding non-hurdle models. However, here the underlying sample used to estimate the count models differs as well.
+From the model comparison above, looking at AIC & BIC values, a few observations can be made. First and foremost, the interpretation of the AIC/BIC/LR values across models with different underlying model distributions is only possible if no terms are dropped in the maximized likelihood estimation (Burnham and Anderson, 2002) - which the researcher cannot not assess given the various R packages used to estimate the models which may differ in the way the fit parameters are calculated.  Furthermore, comparisons across models with different sample sizes do not provide any meaningful information, as the maximized -2log-likelihood can vary widely with sample size (Burnham and Anderson, 2002). This is an issue when comparing models with and without individual fixed effects, as observations without variance in either the pre or post treatment period (i.e. no answering activity) are dropped from the sample.  
+Looking at the AIC of the different models under above limitations, the OLS model with the logged DV and FE included has the lowest AIC. As mentioned above, this is most likely driven by the fact that the sample size is reduced by dropping observations without enough variation over time. When comparing the count regression models (Poisson and Negative Binomial) with and without fixed effects included, the same effect on the fit parameters can be observed. Looking at the hurdle models, the AIC is lower compared to corresponding non-hurdle models. However, here the underlying sample used to estimate the count models differs as well.
 
 
 In summary, model selection can't be driven entirely by fit parameters, but has to be guided by the researchers understanding of the data being analyzed and the suitability of the models given the data. What follows is an investigation of the error distribution as well as predictive ability of the count regression models to offer further insights for choosing the best model.  
 
 #### Preconditions
 
-Below, the qq plot for the residuals as well as the comparison of fitted vs actual answers of the logged DV models are presented to illustrate non-normality (and hence untrustworthiness of standard errors). 
+Below, the qq plot for the residuals as well as the comparison of fitted vs actual answers of the logged DV and unlogged model (with fixed effects) are presented to illustrate non-normality (and hence untrustworthiness of standard errors). 
 Furthermore, the rootograms of the count models are presented, which can be used to assess the predictive capabilities of the underlying models. 
 
-```{r}
+```{r, message = F, warning = F}
 if (!require(countreg)) install.packages("countreg"); library(countreg)#Dangerous, as it overwrites the pscl hurdle models!
 #diagnostics
 ## getting fitted values and comparing them to observed values
 logged_fitted_values <- log(w_panel_matched_qual_6m_unalt_b$actions+1) - residuals(ols_logged_fullFEs_matched_unalt_asw_6m)
 logged_answers_sample <- log(w_panel_matched_qual_6m_unalt_b$actions+1)
 #plot them
-plot(logged_fitted_values,logged_answers_sample , xlim = c(0,3))
+plot(logged_fitted_values,logged_answers_sample , xlim = c(0,3), main = "fitted valuse vs true values - OLS with logged DV (full model)")
 abline(0, 1, col = 'red', lty = 'dashed', lwd = 2)
 
+par(mfrow = c(1, 2))
 #plot the residuals of the model with fixed effects
-qqnorm(residuals(ols_logged_fullFEs_matched_unalt_asw_6m), ylab = 'Residuals')
+qqnorm(residuals(ols_logged_fullFEs_matched_unalt_asw_6m), ylab = 'Residuals', main = "QQ-Plot -  OLS with logged DV (full model)")
 qqline(residuals(ols_logged_fullFEs_matched_unalt_asw_6m))
 
 #plot the residuals of the model without fixed effects
-qqnorm(residuals(ols_logged_matched_unalt_asw_6m), ylab = 'Residuals')
-qqline(residuals(ols_logged_matched_unalt_asw_6m))
+qqnorm(residuals(ols_matched_unalt_asw_6m), ylab = 'Residuals', main = "QQ-Plot - unlogged DV")
+qqline(residuals(ols_matched_unalt_asw_6m))
+par(mfrow = c(1, 1))
 
 ```
 
@@ -608,22 +621,37 @@ par(mfrow = c(1, 1))
 
 inspecting the rootograms above, it can be observed that the hurdle models display less fitting errors, while the negative binomial versions perform better than the poisson model. Both is no surprise given the combination of 0 inflation and overdispersion in the distribution of the dv of interest. A rootogram plotting the models with fixed effects was not available 
 
+An investigation of the outliers for 2 of the models, the OLS with the logged dependent variable as well as the negative binomial regression, yielded at least 2 users, 1 from each of the communities, that displayed unusually high values of answers, leading them to be flagged as outliers according to studentized residual and cook's distance values. once again, the above outlier identification functions were not available for the models with fixed effects. 
+
+First, find below a table of the top 10 most influential outlier observations in the logged DV OLS specification
+
 ```{r}
 
 #outlier test for ols logged model
 outlierTest(ols_logged_matched_unalt_asw_6m)
+```
+
+Second, find below a table of the top 10 most influential outlier observations in the negative binomial specification
+
+```{r}
 #outlier test for the negbi models
 outlierTest(negbi_matched_unalt_asw_6m) #IDs: 647540000, 283107 identified
 #outlier test for the negbi hurdle
   #outlierTest(negbi_h_matched_unalt_asw_6m) ---> not possible with a "hurdle" object
 
-
-#checking for outliers in the non FE models
-infIndexPlot(ols_logged_matched_unalt_asw_6m) #--> ID: 647540000 identified
-infIndexPlot(negbi_matched_unalt_asw_6m) #--> ID: 647540000 identified again
 ```
 
-An investigation of the outliers for 2 of the models, the OLS with the logged dependent variable as well as the negative binomial regression, yielded at least 2 users, 1 from each of the communities, that displayed unusually high values of answers, leading them to be flagged as outliers according to studentized residual and cook's distance values. once again, the above outlier identification functions were not available for the models with fixed effects. 
+Finally, below the visual analysis of outliers in the two model specifications
+
+```{r}
+#checking for outliers in the non FE models
+par(mfrow = c(1, 2))
+infIndexPlot(ols_logged_matched_unalt_asw_6m, main = "Diagnostics plot - logged DV OLS specification") #--> ID: 647540000 identified
+infIndexPlot(negbi_matched_unalt_asw_6m, main = "Diagnostics plot - negative binomial specification") #--> ID: 647540000 identified again
+par(mfrow = c(1, 1))
+```
+
+
 To test their impact on the coefficients as well as model fit, models with and without fixed effects for the two specifications used to test for outliers were rerun as shown below
 
 ```{r, results= 'asis'}
@@ -655,6 +683,7 @@ stargazer(ols_logged_matched_unalt_asw_6m,
 
 ```
 
+
 Purging the outliers from the dataset led to a minimal change in the coefficient compared to the models with the two outliers in all but the negative binomial specification with fixed effects. The negative binomial model saw a further decrease in the did coefficient after exclusion of outliers.
 For the remainder of the statistical report, the models including the outliers are included, as apart from the negative binomial model with fixed effects, the coefficients don't change significantly after excluding users and the researchers decided to opt against reducing the amount of data available. 
 
@@ -667,7 +696,7 @@ $$ y_{it} = \beta_{1}*group_{i} + \beta_{2}(group_{i}*week_{t}) + \beta_{3}quest
 
 For the difference in difference coefficient to be interpreted as causal, the required assumption is that the pretrends of the dependent variable are comparable in both groups. I.e. they don't need to be the same in level, however there should not be any serious deviations in changes over time between the two treated and comparison groups. Here, $\beta_{2}$ gives a point estimate of the difference in answering behavior between the treatment and control group
 
-Below, the point estimates and standard errors for the $\beta_{2}$ are presented for the poisson regression with fixed effects specification - the most suitable model given the data structure aside from the negative binomial specification. It has to be said that it was not possible to estimate pretrends for the negative binomial models with fixed effects or the hurdle models as they did not converge - the implications of this is currently not clear to the authors. In addition, the pretrends using the OLS model with the logged DV variable, including full fixed effects and errors clustered at the individual level are presented
+Below, the point estimates and standard errors for the $\beta_{2}$ coefficient are presented for the poisson regression with fixed effects specification - the most suitable model given the data structure aside from the negative binomial specification. It has to be said that it was not possible to estimate pretrends for the negative binomial models with fixed effects or the hurdle models as they did not converge - the implications of this is currently not clear to the author. In addition, the pretrends using the OLS model with the logged DV variable, including full fixed effects and errors clustered at the individual level are presented
 
 ```{r, message=F, warning=F}
 #Poisson with fixed effects --> NB with FE don't work, can't estimate SEs. need to opt for poisson
@@ -682,7 +711,7 @@ fixest::coefplot(pretrend_pois_FEs_m_unalt_asw_6m, keep = ":",
 abline(v=24, col="red")
 ```
 
-For optimal pretrends one would want the confidence intervals in each period to cross the horizontal line at y=0, implying that statistically, difference in the change from period to period in each group is equal to 0 (see Barbosu and Gans, 2017). As is evident from the pretrend analysis above using the poisson regression with fixed effects on the week and individual level specification, pretrends are not optimal when comparing the two groups, raising considerable doubt about whether the difference-in-difference coefficient can be interpreted as representing a causal effect of the symbolic award introduction. 
+For optimal pretrends one would want the confidence intervals in each period to cross the horizontal line at y=0, implying that statistically, difference in the change from period to period in each group is equal to 0 [@Barbosu.2017]. As is evident from the pretrend analysis above using the poisson regression with fixed effects on the week and individual level specification, pretrends are not optimal when comparing the two groups, raising considerable doubt about whether the difference-in-difference coefficient can be interpreted as representing a causal effect of the symbolic award introduction. 
 
 ```{r, message=F, warning=F}
 #pretrends for answers using the log transformed dependent variable - including individual fixed effects
@@ -714,13 +743,13 @@ In summary, while the distribution of the dependent variable suggests that a cou
 
 # Concluding remarks
 
-In conclusion, the above analysis does allow us to reject the 0 hypothesis of symbolic award introduction not leading to any significant change in weekly user answering behavior when only considering the coefficients of the difference in difference models. However, taking into account that analysis of the pretrends does not allow us to assert that the parallel trends assumption holds in our context, we cannot claim that the negative effect found by our difference-in-difference specification is causally related to the award introduction. 
+In conclusion, the above analysis does allow us to reject the 0 hypothesis of symbolic award introduction not leading to any significant change in weekly user answering behavior when only considering the coefficients of the difference in difference models. However, taking into account that analysis of the pretrends does not allow us to assert that the parallel trends assumption holds in our context, we cannot claim that the negative effect found by our difference in difference specification is causally related to the award introduction. 
 
-A number of issues can be listed, both from a data and performance analysis standpoint. A large issue concerning the data is, taht we cannot confidently claim that some other event which occured before the treatment introduction caused the decline in answers of the treatment group as of this moment. Furthermore, it transpired that the distribution of individual answering behavior in either community is quite different. While in both communities, answering behavior demonstrates power law properties, in that there are a very large number of barely active users and a very small number of highly active users, this effect seems to be especially pronounced in the treated community. We tried to adjust for this using matching procedures, however it seems that while pretrends did impreove compared to the unmatched data, the improvement isn't sufficient to assert parallel trends before treatment for both communities
+A number of issues of this study can be listed, both from a data and performance analysis standpoint. A large issue concerning the data is, that we cannot confidently claim that some other event which occurred before the treatment introduction caused the decline in answers of the treatment group as of this moment. Furthermore, it transpired that the distribution of individual answering behavior in either community is quite different. While in both communities, answering behavior demonstrates power law properties, in that there are a very large number of barely active users and a very small number of highly active users, this effect seems to be especially pronounced in the treated community. We tried to adjust for this using matching procedures, however it seems that while pretrends did improve compared to the unmatched data, the improvement isn't sufficient to assert parallel trends before treatment for both communities
 
 From an analysis side, technical issues prevented the provision of a full picture. Within the extent of this statistical report, it wasn't possible to find a way to apply a hurdle model that reflected the panel dynamics of the data, hence the interpretation of the coefficient (in addition to the calculation of pretrends) proved difficult. Furthermore, it wasn't possible to assess how well negative binomial models deal with panel data. 
 
-Finally, there are numerous extensions and robustness checks that could have been done but weren't conducted within this statistical report. There are a number of alternative matching algorithms that could have been tried as well as different matching variable combinations that could have been tested beyond what has been done within this report. In addition, the propensity scores could be used as weights instead of using matching as a means of sample readjustment. A further route to try could be entropy balancing. These matched, or adjusted, samples could then be used to choose a sample for the difference in difference models, that offers the most suitable pretrends. Finally, what is missing are robustness checks that test results based on different time periods around the shock as well as running models where the period of the shock is arbitrarily selected. 
+Finally, there are numerous extensions and robustness checks that could have been done but weren't conducted within this statistical report. There are a number of alternative matching algorithms that could have been tried as well as different matching variable combinations that could have been tested beyond what has been done within this report. In addition, the propensity scores could be used as weights instead of using matching as a means of sample readjustment. A further route to try could be entropy balancing. These matched, or adjusted, samples could then be used to choose a sample for the difference in difference models which offers the most suitable pretrends. Finally, robustness checks that test results based on different time periods around the shock as well as running models where the period of the shock is arbitrarily selected, are currently missing. 
 
 Beyond addressing the issues pointed out above, a number of extensions to the current research question will be investigated in the future. The change in answer quality and effort can be measured given the data available on the number of likes and words/answer respectively. In addition, it is worth looking into whether member type can be included as a moderator, depending on the pre-treatment activity level of the users.  
 

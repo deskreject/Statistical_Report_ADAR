@@ -12,3 +12,4 @@ bibliography: C:\\R work\\Advanced data analytics with R\\Statistical Report\\re
 $$ answers_{it} = \delta_{1}treatment_{t} + \delta_{2}group_{i} + \delta_{3}(group_{i}*treatment_{t}) + \beta_{1}questions_{t} + \alpha_{t} + \gamma_{i} + \epsilon_{it} $$
 
 
+[@Puranam.2014]
